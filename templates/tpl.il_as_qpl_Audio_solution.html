@@ -1,0 +1,46 @@
+<p>{QUESTIONTEXT}</p>
+<br/>
+<!-- BEGIN result_output -->
+<input type="hidden" id="question_{ID}_audio" name="question_{ID}_audio"  value='{RESULT_OUTPUT}'/>
+<video controls ></video><br>
+<script>
+//Taken from https://jsfiddle.net/sanddune/uubnnr0w/
+function convertDataURIToBinary(dataURI) {
+	  var BASE64_MARKER = ';base64,';
+	  var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
+	  var base64 = dataURI.substring(base64Index);
+	  var raw = window.atob(base64);
+	  var rawLength = raw.length;
+	  var array = new Uint8Array(new ArrayBuffer(rawLength));
+
+	  for(i = 0; i < rawLength; i++) {
+	    array[i] = raw.charCodeAt(i);
+	  }
+	  return array;
+	}
+
+$(document).ready(function(){
+	var previousSolution = 'data:audio/webm;base64,' + document.getElementById('question_{ID}_audio').value;
+	var previousSolutionOutput = document.querySelector('video');
+
+
+	if (document.getElementById('question_{ID}_audio').value == '\n' || document.getElementById('question_{ID}_audio').value == '' || document.getElementById('question_{ID}_audio').value == null) {
+		//Something useful to do here?
+	} else {
+		//var base64ToBlob = atob(previousSolution.value);
+		previousSolutionOutput.controls = true;
+		//previousSolutionOutput.src = "data:audio/webm;base64," . base64ToBlob;
+		
+		var binary = convertDataURIToBinary(previousSolution);
+		var blob = new Blob([binary], {type : 'audio/webm'});		
+		var url = window.URL || window.webkitURL;
+		previousSolutionOutput.src = url ? url.createObjectURL(blob) : blob;
+		previousSolutionOutput.load();
+		
+		
+	}
+});
+</script>
+<!-- END result_output -->
+{FALLBACK}
+{FEEDBACK}
