@@ -2,7 +2,7 @@
 <br/>
 <!-- BEGIN result_output -->
 <input type="hidden" id="question_{ID}_audio" name="question_{ID}_audio"  value='{RESULT_OUTPUT}'/>
-<video controls ></video><br>
+<video id='video_{ID}_audio' controls ></video><br>
 <script>
 //Taken from https://jsfiddle.net/sanddune/uubnnr0w/
 function convertDataURIToBinary(dataURI) {
@@ -21,7 +21,7 @@ function convertDataURIToBinary(dataURI) {
 
 $(document).ready(function(){
 	var previousSolution = 'data:audio/webm;base64,' + document.getElementById('question_{ID}_audio').value;
-	var previousSolutionOutput = document.querySelector('video');
+	var previousSolutionOutput = document.getElementById('video_{ID}_audio');	
 
 
 	if (document.getElementById('question_{ID}_audio').value == '\n' || document.getElementById('question_{ID}_audio').value == '' || document.getElementById('question_{ID}_audio').value == null) {
@@ -36,8 +36,6 @@ $(document).ready(function(){
 		var url = window.URL || window.webkitURL;
 		previousSolutionOutput.src = url ? url.createObjectURL(blob) : blob;
 		previousSolutionOutput.load();
-		
-		
 	}
 });
 </script>

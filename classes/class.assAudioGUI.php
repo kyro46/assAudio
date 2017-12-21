@@ -167,6 +167,7 @@ class assAudioGUI extends assQuestionGUI
 	{
 		$template = $this->plugin->getTemplate("tpl.il_as_qpl_Audio_output.html");
 		$template->setVariable("QUESTIONTEXT", $this->object->prepareTextareaOutput( $this->object->getQuestion(), TRUE));
+		$template->setVariable("ID", $this->object->getId());
 		
 		$questionoutput = $template->get();
 		if(!$show_question_only)
@@ -230,10 +231,11 @@ class assAudioGUI extends assQuestionGUI
         	    // hier nur die Musterlösung anzeigen, da wir uns im test beim drücken von check befinden ;)
         	}
 
+        	$solutiontemplate->setVariable("QUESTIONTEXT", $this->object->prepareTextareaOutput( $this->object->getQuestion(), TRUE));
         	$solutiontemplate->setVariable("RESULT_OUTPUT", $value1);
         	$questionoutput = $solutiontemplate->get();
         	
-        	if ($show_manual_scoring && strlen($this->object->getSampleSolution()) > 0 )
+        	if ($show_manual_scoring)
         	{
         	    $scoringtemplate = $plugin->getTemplate("tpl.il_as_qpl_Audio_solution.html");
         	    $scoringtemplate->setVariable("ID", $this->object->getId());
