@@ -1,11 +1,15 @@
 {QUESTIONTEXT}
-<div id="container">
+<div id="visualizer" style = "text-align:center;">
+    <canvas id="visualizer_{ID}_audio" height="60px"  style="display: none; margin-bottom: 0.5rem;"></canvas>
+</div>
+<div id="player" style = "text-align:center;">
+	<audio id='media_{ID}_audio' controls ></audio>
+</div>
 <div style = "text-align:center;">
-	<video id='video_{ID}_audio' controls ></video><br>
 	<button id="rec_{ID}_audio" type=button onclick="onBtnRecordClicked_{ID}_audio()">Record</button>
 	<button id="pauseRes_{ID}_audio" type=button onclick="onPauseResumeClicked_{ID}_audio()" disabled>Pause</button>
 	<button id="stop_{ID}_audio" type=button onclick="onBtnStopClicked_{ID}_audio()" disabled>Stop</button>
- </div>
+</div>
 <a id="downloadLink_{ID}_audio" download="mediarecorder_{ID}.webm" name="mediarecorder_{ID}.webm" href></a>
 <p id="data_{ID}_audio"></p>
 
@@ -28,7 +32,7 @@ function convertDataURIToBinary(dataURI) {
 
 $(document).ready(function(){
 	var previousSolution = 'data:audio/webm;base64,' + document.getElementById('question_{ID}_audio').value;
-	var previousSolutionOutput = document.querySelector('video_{ID}_audio');
+	var previousSolutionOutput = document.querySelector('media_{ID}_audio');
 
 
 	if (document.getElementById('question_{ID}_audio').value == '\n' || document.getElementById('question_{ID}_audio').value == '' || document.getElementById('question_{ID}_audio').value == null) {
@@ -75,11 +79,16 @@ var recBtn_{ID}_audio = document.getElementById('rec_{ID}_audio');
 var pauseResBtn_{ID}_audio = document.getElementById('pauseRes_{ID}_audio');	
 var stopBtn_{ID}_audio = document.getElementById('stop_{ID}_audio');	
 
-var videoElement_{ID}_audio = document.getElementById('video_{ID}_audio');	
+//Creating a visual feedback, following https://developer.mozilla.org/en-US/docs/Web/API/MediaStream_Recording_API/Using_the_MediaStream_Recording_API
+var canvas_{ID}_audio = document.getElementById('visualizer_{ID}_audio');
+var audioCtx_{ID}_audio = new (window.AudioContext || webkitAudioContext)();
+var canvasCtx_{ID}_audio = canvas_{ID}_audio.getContext("2d");
+
+var mediaElement_{ID}_audio = document.getElementById('media_{ID}_audio');	
 var dataElement_{ID}_audio = document.getElementById('data_{ID}_audio');	
 var downloadLink_{ID}_audio = document.getElementById('downloadLink_{ID}_audio');	
 
-videoElement_{ID}_audio.controls = false;
+mediaElement_{ID}_audio.controls = false;
 
 function errorCallback(error){
 	console.log_{ID}_audio('navigator.getUserMedia error: ', error);	
@@ -113,11 +122,14 @@ function startRecording_{ID}_audio(stream) {
 		if (false) { // TODO if only audio, don't use the options
 			log_{ID}_audio('Using '+options.mimeType);
 			mediaRecorder = new MediaRecorder(stream, options);
-		
 		} else {
 			log_{ID}_audio('Using audio/webm');
 			mediaRecorder = new MediaRecorder(stream);
 		}
+		
+	    visualize(stream);
+		$('#visualizer_{ID}_audio').show();
+		
 	}else{
 		log_{ID}_audio('isTypeSupported is not supported, using default codecs for browser');
 		mediaRecorder = new MediaRecorder(stream);
@@ -128,9 +140,9 @@ function startRecording_{ID}_audio(stream) {
 	mediaRecorder.start(10);
 
 	var url = window.URL || window.webkitURL;
-	videoElement_{ID}_audio.src = url ? url.createObjectURL(stream) : stream;
-	videoElement_{ID}_audio.play();
-	$("video").prop('muted', true);
+	mediaElement_{ID}_audio.src = url ? url.createObjectURL(stream) : stream;
+	mediaElement_{ID}_audio.play();
+	$("#media_{ID}_audio").prop('muted', true);
 
 	mediaRecorder.ondataavailable = function(e) {
 		//log('Data available...');
@@ -170,7 +182,7 @@ function startRecording_{ID}_audio(stream) {
 		var videoURL = window.URL.createObjectURL(blob);
 
 		downloadLink_{ID}_audio.href = videoURL;
-		videoElement_{ID}_audio.src = videoURL;
+		mediaElement_{ID}_audio.src = videoURL;
 		downloadLink_{ID}_audio.innerHTML = 'Download file';
 
 		var rand =  Math.floor((Math.random() * 10000000));
@@ -212,8 +224,9 @@ function onBtnRecordClicked_{ID}_audio (){
 
 function onBtnStopClicked_{ID}_audio(){
 	mediaRecorder.stop();
-	videoElement_{ID}_audio.controls = true;
-	$("video").prop('muted', false);
+	mediaElement_{ID}_audio.controls = true;
+	$("#media_{ID}_audio").prop('muted', false);
+	$('#visualizer_{ID}_audio').hide();
 
 	recBtn_{ID}_audio.disabled = false;
 	pauseResBtn_{ID}_audio.disabled = true;
@@ -306,5 +319,65 @@ function getBrowser(){
 
 	return browserName;
 }
+
+// function visualize taken from https://github.com/mdn/web-dictaphone
+function visualize(stream) {
+	  var source = audioCtx_{ID}_audio.createMediaStreamSource(stream);
+
+	  var analyser = audioCtx_{ID}_audio.createAnalyser();
+	  analyser.fftSize = 2048;
+	  var bufferLength = analyser.frequencyBinCount;
+	  var dataArray = new Uint8Array(bufferLength);
+
+	  source.connect(analyser);
+	  //analyser.connect(audioCtx_{ID}_audio.destination);
+
+	  draw()
+
+	  function draw() {
+	    WIDTH = canvas_{ID}_audio.width
+	    HEIGHT = canvas_{ID}_audio.height;
+
+	    requestAnimationFrame(draw);
+
+	    analyser.getByteTimeDomainData(dataArray);
+
+	    canvasCtx_{ID}_audio.fillStyle = 'rgb(200, 200, 200)';
+	    canvasCtx_{ID}_audio.fillRect(0, 0, WIDTH, HEIGHT);
+
+	    canvasCtx_{ID}_audio.lineWidth = 2;
+	    canvasCtx_{ID}_audio.strokeStyle = 'rgb(0, 0, 0)';
+
+	    canvasCtx_{ID}_audio.beginPath();
+
+	    var sliceWidth = WIDTH * 1.0 / bufferLength;
+	    var x = 0;
+
+
+	    for(var i = 0; i < bufferLength; i++) {
+	 
+	      var v = dataArray[i] / 128.0;
+	      var y = v * HEIGHT/2;
+
+	      if(i === 0) {
+	        canvasCtx_{ID}_audio.moveTo(x, y);
+	      } else {
+	        canvasCtx_{ID}_audio.lineTo(x, y);
+	      }
+
+	      x += sliceWidth;
+	    }
+
+	    canvasCtx_{ID}_audio.lineTo(canvas_{ID}_audio.width, canvas_{ID}_audio.height/2);
+	    canvasCtx_{ID}_audio.stroke();
+
+	  }
+}
+
+window.onresize = function() {
+	  canvas_{ID}_audio.width = mainSection.offsetWidth;
+}
+
+window.onresize();
 </script>
 <input type="hidden" id="question_{ID}_audio" name="question_{ID}_audio"  value='{RESUME}'/>
