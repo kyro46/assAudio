@@ -10,7 +10,9 @@
 	<button id="pauseRes_{ID}_audio" type=button onclick="onPauseResumeClicked_{ID}_audio()" disabled>Pause</button>
 	<button id="stop_{ID}_audio" type=button onclick="onBtnStopClicked_{ID}_audio()" disabled>Stop</button>
 </div>
-<a id="downloadLink_{ID}_audio" download="mediarecorder_{ID}.webm" name="mediarecorder_{ID}.webm" href></a>
+
+
+<a style="display: none" id="downloadLink_{ID}_audio" download="mediarecorder_{ID}.webm" name="mediarecorder_{ID}.webm" href></a>
 <p id="data_{ID}_audio"></p>
 
 
@@ -32,7 +34,7 @@ function convertDataURIToBinary(dataURI) {
 
 $(document).ready(function(){
 	var previousSolution = 'data:audio/webm;base64,' + document.getElementById('question_{ID}_audio').value;
-	var previousSolutionOutput = document.querySelector('media_{ID}_audio');
+	var previousSolutionOutput = document.getElementById('media_{ID}_audio');
 
 
 	if (document.getElementById('question_{ID}_audio').value == '\n' || document.getElementById('question_{ID}_audio').value == '' || document.getElementById('question_{ID}_audio').value == null) {
@@ -47,8 +49,6 @@ $(document).ready(function(){
 		var url = window.URL || window.webkitURL;
 		previousSolutionOutput.src = url ? url.createObjectURL(blob) : blob;
 		previousSolutionOutput.load();
-		
-		
 	}
 });
 
@@ -88,7 +88,8 @@ var mediaElement_{ID}_audio = document.getElementById('media_{ID}_audio');
 var dataElement_{ID}_audio = document.getElementById('data_{ID}_audio');	
 var downloadLink_{ID}_audio = document.getElementById('downloadLink_{ID}_audio');	
 
-mediaElement_{ID}_audio.controls = false;
+//Show the player while recording to present the current length of the recording
+//mediaElement_{ID}_audio.controls = false;
 
 function errorCallback(error){
 	console.log_{ID}_audio('navigator.getUserMedia error: ', error);	
@@ -179,14 +180,14 @@ function startRecording_{ID}_audio(stream) {
    			answerAudio.value = btoa(base64);
 		}
 
-		var videoURL = window.URL.createObjectURL(blob);
+		var mediaURL = window.URL.createObjectURL(blob);
 
-		downloadLink_{ID}_audio.href = videoURL;
-		mediaElement_{ID}_audio.src = videoURL;
+		downloadLink_{ID}_audio.href = mediaURL;
+		mediaElement_{ID}_audio.src = mediaURL;
 		downloadLink_{ID}_audio.innerHTML = 'Download file';
 
 		var rand =  Math.floor((Math.random() * 10000000));
-		var name  = "video_"+rand+".webm" ;
+		var name  = "media_"+rand+".webm" ;
 
 		downloadLink_{ID}_audio.setAttribute( "download", name);
 		downloadLink_{ID}_audio.setAttribute( "name", name);
