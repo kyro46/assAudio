@@ -1,20 +1,17 @@
 {QUESTIONTEXT}
 <div id="visualizer" style = "text-align:center;">
-    <canvas id="visualizer_{ID}_audio" height="60px"  style="display: none; margin-bottom: 0.5rem;"></canvas>
+    <canvas id="visualizer_{ID}_audio" height="60px"  margin-bottom: 0.5rem;"></canvas>
 </div>
 <div id="player" style = "text-align:center;">
 	<audio id='media_{ID}_audio' controls ></audio>
 </div>
 <div style = "text-align:center;">
-	<button id="rec_{ID}_audio" type=button onclick="onBtnRecordClicked_{ID}_audio()">Record</button>
-	<button id="pauseRes_{ID}_audio" type=button onclick="onPauseResumeClicked_{ID}_audio()" disabled>Pause</button>
-	<button id="stop_{ID}_audio" type=button onclick="onBtnStopClicked_{ID}_audio()" disabled>Stop</button>
+	<button class="btn btn-default" id="rec_{ID}_audio" type=button onclick="onBtnRecordClicked_{ID}_audio()">Record</button>
+	<button class="btn btn-default" id="pauseRes_{ID}_audio" type=button onclick="onPauseResumeClicked_{ID}_audio()" disabled>Pause</button>
+	<button class="btn btn-default" id="stop_{ID}_audio" type=button onclick="onBtnStopClicked_{ID}_audio()" disabled>Stop</button>
 </div>
-
-
 <a style="display: none" id="downloadLink_{ID}_audio" download="mediarecorder_{ID}.webm" name="mediarecorder_{ID}.webm" href></a>
-<p id="data_{ID}_audio"></p>
-
+<p style="display: none" id="data_{ID}_audio"></p>
 
 <script>
 //Taken from https://jsfiddle.net/sanddune/uubnnr0w/
@@ -227,7 +224,7 @@ function onBtnStopClicked_{ID}_audio(){
 	mediaRecorder.stop();
 	mediaElement_{ID}_audio.controls = true;
 	$("#media_{ID}_audio").prop('muted', false);
-	$('#visualizer_{ID}_audio').hide();
+	//$('#visualizer_{ID}_audio').hide();
 
 	recBtn_{ID}_audio.disabled = false;
 	pauseResBtn_{ID}_audio.disabled = true;
@@ -343,7 +340,8 @@ function visualize(stream) {
 
 	    analyser.getByteTimeDomainData(dataArray);
 
-	    canvasCtx_{ID}_audio.fillStyle = 'rgb(200, 200, 200)';
+	    var color = $('.ilc_question_Standard').css("background-color");
+	    canvasCtx_{ID}_audio.fillStyle = color;
 	    canvasCtx_{ID}_audio.fillRect(0, 0, WIDTH, HEIGHT);
 
 	    canvasCtx_{ID}_audio.lineWidth = 2;
