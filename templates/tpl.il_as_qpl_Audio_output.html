@@ -6,14 +6,29 @@
 	<audio id='media_{ID}_audio' controls ></audio>
 </div>
 <div style = "text-align:center;">
-	<button class="btn btn-default" id="rec_{ID}_audio" type=button onclick="onBtnRecordClicked_{ID}_audio()">Record</button>
+	<button class="btn btn-default" id="confirm_{ID}_audio" type=button>Record</button>
 	<button class="btn btn-default" id="pauseRes_{ID}_audio" type=button onclick="onPauseResumeClicked_{ID}_audio()" disabled>Pause</button>
-	<button class="btn btn-default" id="stop_{ID}_audio" type=button onclick="onBtnStopClicked_{ID}_audio()" disabled>Stop</button>
+	<button class="btn btn-default" id="stop_{ID}_audio" type=button onclick="onBtnStopClicked_{ID}_audio()" disabled>Finish</button>
+</div>
+</br>
+<div id="confirmation_{ID}_audio" style = "text-align:center; display: none;">
+	<strong>This will override the current recording!</strong>
+	</br>
+	<button class="btn btn-default" id="cancelBtn_{ID}_audio" type=button onclick="">Cancel</button>
+	<button class="btn btn-default" id="rec_{ID}_audio" type=button onclick="onBtnRecordClicked_{ID}_audio()">Start recording</button>
 </div>
 <a style="display: none" id="downloadLink_{ID}_audio" download="mediarecorder_{ID}.webm" name="mediarecorder_{ID}.webm" href></a>
 <p style="display: none" id="data_{ID}_audio"></p>
 
 <script>
+//Toggle Confirmation dialog
+document.getElementById("confirm_{ID}_audio").addEventListener("click", function(){
+    document.getElementById("confirmation_{ID}_audio").style.display = "block";
+});
+document.getElementById("cancelBtn_{ID}_audio").addEventListener("click", function(){
+    document.getElementById("confirmation_{ID}_audio").style.display = "none";
+});
+
 //Taken from https://jsfiddle.net/sanddune/uubnnr0w/
 function convertDataURIToBinary(dataURI) {
 	  var BASE64_MARKER = ';base64,';
@@ -73,6 +88,7 @@ if(getBrowser() == "Chrome"){
 }
 
 var recBtn_{ID}_audio = document.getElementById('rec_{ID}_audio');	
+var confirmBtn_{ID}_audio = document.getElementById('confirm_{ID}_audio');	
 var pauseResBtn_{ID}_audio = document.getElementById('pauseRes_{ID}_audio');	
 var stopBtn_{ID}_audio = document.getElementById('stop_{ID}_audio');	
 
@@ -210,11 +226,13 @@ function startRecording_{ID}_audio(stream) {
 //}
 
 function onBtnRecordClicked_{ID}_audio (){
+	 document.getElementById("confirmation_{ID}_audio").style.display = "none";
 	 if (typeof MediaRecorder === 'undefined' || !navigator.getUserMedia) {
 		alert('MediaRecorder not supported on your browser, use Firefox 30+ or Chrome 49+ instead.');
 	}else {
 		navigator.getUserMedia(constraints_audio, startRecording_{ID}_audio, errorCallback);
 		recBtn_{ID}_audio.disabled = true;
+		confirmBtn_{ID}_audio.disabled = true;
 		pauseResBtn_{ID}_audio.disabled = false;
 		stopBtn_{ID}_audio.disabled = false;
 	}
@@ -227,6 +245,7 @@ function onBtnStopClicked_{ID}_audio(){
 	//$('#visualizer_{ID}_audio').hide();
 
 	recBtn_{ID}_audio.disabled = false;
+	confirmBtn_{ID}_audio.disabled = false;
 	pauseResBtn_{ID}_audio.disabled = true;
 	stopBtn_{ID}_audio.disabled = true;
 }
