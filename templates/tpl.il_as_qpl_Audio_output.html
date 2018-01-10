@@ -7,41 +7,42 @@
 </div>
 <div style = "text-align:center;">
 	<div id="recordingoptions_{ID}_audio" style = "text-align:center;"></div>
-	<button class="btn btn-default" id="confirm_{ID}_audio" type=button>Record</button>
-	<button class="btn btn-default" id="pauseRes_{ID}_audio" type=button onclick="onPauseResumeClicked_{ID}_audio()" disabled>Pause</button>
-	<button class="btn btn-default" id="stop_{ID}_audio" type=button onclick="onBtnStopClicked_{ID}_audio()" disabled>Finish</button>
+	<button class="btn btn-default" id="confirm_{ID}_audio" type=button>{RECORD}</button>
+	<button class="btn btn-default" id="pauseRes_{ID}_audio" type=button onclick="onPauseResumeClicked_{ID}_audio()" disabled>{PAUSE}</button>
+	<button class="btn btn-default" id="stop_{ID}_audio" type=button onclick="onBtnStopClicked_{ID}_audio()" disabled>{FINISH}</button>
 </div>
 </br>
 <div id="confirmation_{ID}_audio" style = "text-align:center; display: none;">
-	<strong>This will override the current recording!</strong>
+	<strong>{OVERRIDEWARN}</strong>
 	</br>
-	<button class="btn btn-default" id="cancelBtn_{ID}_audio" type=button onclick="">Cancel</button>
-	<button class="btn btn-default" id="rec_{ID}_audio" type=button onclick="onBtnRecordClicked_{ID}_audio()">Start recording</button>
+	<button class="btn btn-default" id="cancelBtn_{ID}_audio" type=button onclick="">{CANCEL}</button>
+	<button class="btn btn-default" id="rec_{ID}_audio" type=button onclick="onBtnRecordClicked_{ID}_audio()">{STARTRECORDING}</button>
 </div>
 <a style="display: none" id="downloadLink_{ID}_audio" download="mediarecorder_{ID}.webm" name="mediarecorder_{ID}.webm" href></a>
 <p style="display: none" id="data_{ID}_audio"></p>
+
 <script>
 function showDuration_{ID}_audio(){
 	
-	var mediaElement_{ID}_audio = document.getElementById("media_{ID}_audio");
-	var duration_{ID}_audio = mediaElement_{ID}_audio.duration;
+	var mediDuration_{ID}_audio = document.getElementById("media_{ID}_audio");
+	var duration_{ID}_audio = mediDuration_{ID}_audio.duration;
 	var output_{ID}_audio = '';
 	
 	if(getBrowser() == "Firefox") {
 		if (!isFinite(duration_{ID}_audio) && !isNaN(duration_{ID}_audio)){
-			output_{ID}_audio = 'Recording started ... ';
+			output_{ID}_audio = '{MSG_RECORDINGSTARTED}';
 		} else if (isNaN(duration_{ID}_audio)) {
-	    	output_{ID}_audio = 'Currently no recording created.';
+	    	output_{ID}_audio = '{MSG_CURRENTLYNORECORDING}';
 		} else if (isFinite(duration_{ID}_audio)) {
-			output_{ID}_audio = 'Recording with duration of ' + duration_{ID}_audio + ' seconds exists.';
+			output_{ID}_audio = '{MSG_EXISTING_DURATION_P1} ' + duration_{ID}_audio + ' {MSG_EXISTING_DURATION_P2}';
 		} else {
 			output_{ID}_audio = ''
 		}
 	} else {
 		if (!isFinite(duration_{ID}_audio) && !isNaN(duration_{ID}_audio)){
-			output_{ID}_audio = 'Recording on the way/created. After finishing the current recording, press play to rehear it.';
+			output_{ID}_audio = '{MSG_EXISTING_ALTERNATE}';
 		} else if (isNaN(duration_{ID}_audio)) {
-	    	output_{ID}_audio = 'Currently no recording created.';
+	    	output_{ID}_audio = '{MSG_CURRENTLYNORECORDING}';
 		}
 	}
 	document.getElementById("recordingoptions_{ID}_audio").innerHTML = output_{ID}_audio;
@@ -176,7 +177,7 @@ function startRecording_{ID}_audio(stream) {
 		mediaRecorder = new MediaRecorder(stream);
 	}
 
-	pauseResBtn_{ID}_audio.textContent = "Pause";
+	pauseResBtn_{ID}_audio.textContent = "{PAUSE}";
 
 	mediaRecorder.start(10);
 
@@ -278,14 +279,14 @@ function onBtnStopClicked_{ID}_audio(){
 }
 
 function onPauseResumeClicked_{ID}_audio(){
-	if(pauseResBtn_{ID}_audio.textContent === "Pause"){
+	if(pauseResBtn_{ID}_audio.textContent === "{PAUSE}"){
 		console.log("pause");
-		pauseResBtn_{ID}_audio.textContent = "Resume";
+		pauseResBtn_{ID}_audio.textContent = "{RESUME}";
 		mediaRecorder.pause();
 		stopBtn_{ID}_audio.disabled = true;
 	}else{
 		console.log("resume");
-		pauseResBtn_{ID}_audio.textContent = "Pause";
+		pauseResBtn_{ID}_audio.textContent = "{PAUSE}";
 		mediaRecorder.resume();
 		stopBtn_{ID}_audio.disabled = false;
 	}
@@ -425,4 +426,4 @@ window.onresize = function() {
 
 window.onresize();
 </script>
-<input type="hidden" id="question_{ID}_audio" name="question_{ID}_audio"  value='{RESUME}'/>
+<input type="hidden" id="question_{ID}_audio" name="question_{ID}_audio"  value='{SOLUTION}'/>

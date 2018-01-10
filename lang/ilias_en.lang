@@ -3,3 +3,15 @@
 assAudio#:#Audiorecorder
 points#:#Points
 bestSolutionNa#:#Not available for this question type.
+record#:#Record
+pause#:#Pause
+resume#:#Resume
+finish#:#Finish
+overridewarn#:#This will override the current recording!
+cancel#:#Cancel
+startrecording#:#Start recording
+msg_recordingstarted#:#Recording started ... 
+msg_currentlynorecording#:#Currently no recording created.
+msg_existing_duration_p1#:#Recording with duration of
+msg_existing_duration_p2#:#seconds exists.
+msg_existing_alternate#:#Recording created.

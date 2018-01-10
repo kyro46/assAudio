@@ -147,7 +147,20 @@ class assAudioGUI extends assQuestionGUI
 			$template = $this->plugin->getTemplate("tpl.il_as_qpl_Audio_output.html");
 			$template->setVariable("QUESTIONTEXT", $this->object->prepareTextareaOutput( $this->object->getQuestion(), TRUE));
 			$template->setVariable("ID", $this->object->getId());
-			$template->setVariable("RESUME", ilUtil::prepareFormOutput($user_solution[0]["value1"]));
+			$template->setVariable("SOLUTION", ilUtil::prepareFormOutput($user_solution[0]["value1"]));
+			//language
+			$template->setVariable("RECORD",$this->plugin->txt("record"));
+			$template->setVariable("PAUSE",$this->plugin->txt("pause"));
+			$template->setVariable("RESUME",$this->plugin->txt("resume"));
+			$template->setVariable("FINISH",$this->plugin->txt("finish"));
+			$template->setVariable("OVERRIDEWARN",$this->plugin->txt("overridewarn"));
+			$template->setVariable("CANCEL",$this->plugin->txt("cancel"));
+			$template->setVariable("STARTRECORDING",$this->plugin->txt("startrecording"));
+			$template->setVariable("MSG_RECORDINGSTARTED",$this->plugin->txt("msg_recordingstarted"));
+			$template->setVariable("MSG_CURRENTLYNORECORDING",$this->plugin->txt("msg_currentlynorecording"));
+			$template->setVariable("MSG_EXISTING_DURATION_P1",$this->plugin->txt("msg_existing_duration_p1"));
+			$template->setVariable("MSG_EXISTING_DURATION_P2",$this->plugin->txt("msg_existing_duration_p2"));
+			$template->setVariable("MSG_EXISTING_ALTERNATE",$this->plugin->txt("msg_existing_alternate"));
 			
 		}
 
@@ -168,6 +181,20 @@ class assAudioGUI extends assQuestionGUI
 		$template = $this->plugin->getTemplate("tpl.il_as_qpl_Audio_output.html");
 		$template->setVariable("QUESTIONTEXT", $this->object->prepareTextareaOutput( $this->object->getQuestion(), TRUE));
 		$template->setVariable("ID", $this->object->getId());
+	
+		//language
+		$template->setVariable("RECORD",$this->plugin->txt("record"));
+		$template->setVariable("PAUSE",$this->plugin->txt("pause"));
+		$template->setVariable("RESUME",$this->plugin->txt("resume"));
+		$template->setVariable("FINISH",$this->plugin->txt("finish"));
+		$template->setVariable("OVERRIDEWARN",$this->plugin->txt("overridewarn"));
+		$template->setVariable("CANCEL",$this->plugin->txt("cancel"));
+		$template->setVariable("STARTRECORDING",$this->plugin->txt("startrecording"));
+		$template->setVariable("MSG_RECORDINGSTARTED",$this->plugin->txt("msg_recordingstarted"));
+		$template->setVariable("MSG_CURRENTLYNORECORDING",$this->plugin->txt("msg_currentlynorecording"));
+		$template->setVariable("MSG_EXISTING_DURATION_P1",$this->plugin->txt("msg_existing_duration_p1"));
+		$template->setVariable("MSG_EXISTING_DURATION_P2",$this->plugin->txt("msg_existing_duration_p2"));
+		$template->setVariable("MSG_EXISTING_ALTERNATE",$this->plugin->txt("msg_existing_alternate"));
 		
 		$questionoutput = $template->get();
 		if(!$show_question_only)

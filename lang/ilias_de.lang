@@ -3,3 +3,15 @@
 assAudio#:#Tonaufzeichnung
 points#:#Punkte
 bestSolutionNa#:#Nicht verfügbar für diesen Fragetyp.
+record#:#Aufzeichnen
+pause#:#Pausieren
+resume#:#Fortsetzen
+finish#:#Beenden
+overridewarn#:#Dadurch wird die aktuelle Aufzeichnung &uuml;berschrieben!
+cancel#:#Abbrechen
+startrecording#:#Aufzeichnung starten
+msg_recordingstarted#:#Aufzeichnung gestartet ... 
+msg_currentlynorecording#:#Aktuell keine Aufzeichnung vorhanden.
+msg_existing_duration_p1#:#Aufzeichnung mit einer Dauer von
+msg_existing_duration_p2#:#Sekunden vorhanden.
+msg_existing_alternate#:#Aufzeichnung erstellt.
