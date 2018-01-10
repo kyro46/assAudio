@@ -3,9 +3,10 @@
     <canvas id="visualizer_{ID}_audio" height="60px"  margin-bottom: 0.5rem;"></canvas>
 </div>
 <div id="player" style = "text-align:center;">
-	<audio id='media_{ID}_audio' controls ></audio>
+	<audio id='media_{ID}_audio' controls onloadeddata='showDuration_{ID}_audio()' ></audio>
 </div>
 <div style = "text-align:center;">
+	<div id="recordingoptions_{ID}_audio" style = "text-align:center;"></div>
 	<button class="btn btn-default" id="confirm_{ID}_audio" type=button>Record</button>
 	<button class="btn btn-default" id="pauseRes_{ID}_audio" type=button onclick="onPauseResumeClicked_{ID}_audio()" disabled>Pause</button>
 	<button class="btn btn-default" id="stop_{ID}_audio" type=button onclick="onBtnStopClicked_{ID}_audio()" disabled>Finish</button>
@@ -19,8 +20,33 @@
 </div>
 <a style="display: none" id="downloadLink_{ID}_audio" download="mediarecorder_{ID}.webm" name="mediarecorder_{ID}.webm" href></a>
 <p style="display: none" id="data_{ID}_audio"></p>
-
 <script>
+function showDuration_{ID}_audio(){
+	
+	var mediaElement_{ID}_audio = document.getElementById("media_{ID}_audio");
+	var duration_{ID}_audio = mediaElement_{ID}_audio.duration;
+	var output_{ID}_audio = '';
+	
+	if(getBrowser() == "Firefox") {
+		if (!isFinite(duration_{ID}_audio) && !isNaN(duration_{ID}_audio)){
+			output_{ID}_audio = 'Recording started ... ';
+		} else if (isNaN(duration_{ID}_audio)) {
+	    	output_{ID}_audio = 'Currently no recording created.';
+		} else if (isFinite(duration_{ID}_audio)) {
+			output_{ID}_audio = 'Recording with duration of ' + duration_{ID}_audio + ' seconds exists.';
+		} else {
+			output_{ID}_audio = ''
+		}
+	} else {
+		if (!isFinite(duration_{ID}_audio) && !isNaN(duration_{ID}_audio)){
+			output_{ID}_audio = 'Recording on the way/created. After finishing the current recording, press play to rehear it.';
+		} else if (isNaN(duration_{ID}_audio)) {
+	    	output_{ID}_audio = 'Currently no recording created.';
+		}
+	}
+	document.getElementById("recordingoptions_{ID}_audio").innerHTML = output_{ID}_audio;
+}
+
 //Toggle Confirmation dialog
 document.getElementById("confirm_{ID}_audio").addEventListener("click", function(){
     document.getElementById("confirmation_{ID}_audio").style.display = "block";
@@ -62,6 +88,7 @@ $(document).ready(function(){
 		previousSolutionOutput.src = url ? url.createObjectURL(blob) : blob;
 		previousSolutionOutput.load();
 	}
+	showDuration_{ID}_audio();
 });
 
 
@@ -393,7 +420,7 @@ function visualize(stream) {
 }
 
 window.onresize = function() {
-	  canvas_{ID}_audio.width = mainSection.offsetWidth;
+	  canvas_{ID}_audio.width = mediaElement_{ID}_audio.offsetWidth;
 }
 
 window.onresize();
