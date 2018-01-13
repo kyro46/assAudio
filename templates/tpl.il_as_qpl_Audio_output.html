@@ -11,10 +11,10 @@
 	<button class="btn btn-default" id="pauseRes_{ID}_audio" type=button onclick="onPauseResumeClicked_{ID}_audio()" disabled>{PAUSE}</button>
 	<button class="btn btn-default" id="stop_{ID}_audio" type=button onclick="onBtnStopClicked_{ID}_audio()" disabled>{FINISH}</button>
 </div>
-</br>
+<br/>
 <div id="confirmation_{ID}_audio" style = "text-align:center; display: none;">
 	<strong>{OVERRIDEWARN}</strong>
-	</br>
+	<br/>
 	<button class="btn btn-default" id="cancelBtn_{ID}_audio" type=button onclick="">{CANCEL}</button>
 	<button class="btn btn-default" id="rec_{ID}_audio" type=button onclick="onBtnRecordClicked_{ID}_audio()">{STARTRECORDING}</button>
 </div>
@@ -145,6 +145,21 @@ var sourceBuffer;
 var mediaRecorder;
 var chunks = [];
 var count = 0;
+var interval = null;
+
+function presave() {
+	var blob_presave = new Blob(chunks, {type: "audio/webm"});
+	//var blob = new Blob(chunks, {type: "video/webm"});
+
+	//save input as base64-string 
+	var answerAudio_presave = document.getElementById('question_{ID}_audio');	
+	var reader_presave = new window.FileReader();
+	reader_presave.readAsBinaryString(blob_presave); 
+	reader_presave.onloadend = function() {
+	var base64_presave = reader_presave.result;
+			answerAudio_presave.value = btoa(base64_presave);
+	}
+}
 
 function startRecording_{ID}_audio(stream) {
 	log_{ID}_audio('Start recording...');
@@ -180,6 +195,9 @@ function startRecording_{ID}_audio(stream) {
 	pauseResBtn_{ID}_audio.textContent = "{PAUSE}";
 
 	mediaRecorder.start(10);
+	
+	//since the stream started, we can start to save it
+	interval = setInterval(presave, 5000);
 
 	var url = window.URL || window.webkitURL;
 	mediaElement_{ID}_audio.src = url ? url.createObjectURL(stream) : stream;
@@ -254,7 +272,7 @@ function startRecording_{ID}_audio(stream) {
 //}
 
 function onBtnRecordClicked_{ID}_audio (){
-	 document.getElementById("confirmation_{ID}_audio").style.display = "none";
+	document.getElementById("confirmation_{ID}_audio").style.display = "none";
 	 if (typeof MediaRecorder === 'undefined' || !navigator.getUserMedia) {
 		alert('MediaRecorder not supported on your browser, use Firefox 30+ or Chrome 49+ instead.');
 	}else {
@@ -267,6 +285,7 @@ function onBtnRecordClicked_{ID}_audio (){
 }
 
 function onBtnStopClicked_{ID}_audio(){
+	clearInterval(interval);
 	mediaRecorder.stop();
 	mediaElement_{ID}_audio.controls = true;
 	$("#media_{ID}_audio").prop('muted', false);
