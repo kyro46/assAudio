@@ -145,9 +145,11 @@ var sourceBuffer;
 var mediaRecorder;
 var chunks = [];
 var count = 0;
-var interval = null;
+var interval_{ID}_audio = null;
+var presavecounter_{ID}_audio = 0;
 
-function presave() {
+function presave_{ID}_audio() {
+	presavecounter_{ID}_audio++;
 	var blob_presave = new Blob(chunks, {type: "audio/webm"});
 	//var blob = new Blob(chunks, {type: "video/webm"});
 
@@ -159,6 +161,18 @@ function presave() {
 	var base64_presave = reader_presave.result;
 			answerAudio_presave.value = btoa(base64_presave);
 	}
+	
+	//After 1 Minute increase the presave interval from 5 to 10 seconds
+	if (presavecounter_{ID}_audio  == 12) {
+		clearInterval(interval_{ID}_audio);
+		interval_{ID}_audio = setInterval(presave_{ID}_audio, 10000);
+	}
+	
+	//After another 4 minutes, 5 minutes total, increase the presave interval from 10 to 20 seconds
+	if (presavecounter_{ID}_audio  == 24) {
+		clearInterval(interval_{ID}_audio);
+		interval_{ID}_audio = setInterval(presave_{ID}_audio, 20000);
+	}	
 }
 
 function startRecording_{ID}_audio(stream) {
@@ -197,7 +211,7 @@ function startRecording_{ID}_audio(stream) {
 	mediaRecorder.start(10);
 	
 	//since the stream started, we can start to save it
-	interval = setInterval(presave, 20000);
+	interval_{ID}_audio = setInterval(presave_{ID}_audio, 5000);
 
 	var url = window.URL || window.webkitURL;
 	mediaElement_{ID}_audio.src = url ? url.createObjectURL(stream) : stream;
@@ -285,7 +299,7 @@ function onBtnRecordClicked_{ID}_audio (){
 }
 
 function onBtnStopClicked_{ID}_audio(){
-	clearInterval(interval);
+	clearInterval(interval_{ID}_audio);
 	mediaRecorder.stop();
 	mediaElement_{ID}_audio.controls = true;
 	$("#media_{ID}_audio").prop('muted', false);
