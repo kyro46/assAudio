@@ -197,7 +197,7 @@ function startRecording_{ID}_audio(stream) {
 	mediaRecorder.start(10);
 	
 	//since the stream started, we can start to save it
-	interval = setInterval(presave, 5000);
+	interval = setInterval(presave, 20000);
 
 	var url = window.URL || window.webkitURL;
 	mediaElement_{ID}_audio.src = url ? url.createObjectURL(stream) : stream;
