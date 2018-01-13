@@ -308,12 +308,19 @@ class assAudio extends assQuestion
 
 		$solution = $this->getSolutionSubmit();
 		
+		$path = $this->getFileUploadPath($active_id);
+		$filename = "recording_" . $active_id . "_" . $pass . "_" . time() . '.webm';
+
+		if (!@file_exists($this->getFileUploadPath($active_id)))
+			ilUtil::makeDirParents($this->getFileUploadPath($active_id));
+		file_put_contents($path . $filename, base64_decode($solution["value1"]));
+		
 		$next_id      = $ilDB->nextId('tst_solutions');
 		$affectedRows = $ilDB->insert("tst_solutions", array(
 			"solution_id" => array("integer", $next_id),
 			"active_fi"   => array("integer", $active_id),
 			"question_fi" => array("integer", $this->getId()),
-		    "value1" => array("clob", $solution["value1"]), //BASE64
+			"value1" => array("clob", $filename),
 			"pass"        => array("integer", $pass),
 			"tstamp"      => array("integer", time()),
 		));
@@ -458,8 +465,15 @@ class assAudio extends assQuestion
 		return $export->toXML($a_include_header, $a_include_binary, $a_shuffle, $test_output, $force_image_references);
 	}
 	
-
-	//ILIAS 5.0.x compability-code:
+	/**
+	 * Returns the filesystem path for file uploads
+	 */
+	public function getFileUploadPath($active_id, $question_id = null)
+	{
+		$test_id = $this->lookupTestId($active_id);
+		if (is_null($question_id)) $question_id = $this->getId();
+		return CLIENT_WEB_DIR . "/assessment/tst_$test_id/$active_id/$question_id/files/";
+	}
 	
 	/**
 	 * Get the submitted user input as a serializable value

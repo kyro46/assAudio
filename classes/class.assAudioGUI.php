@@ -147,7 +147,14 @@ class assAudioGUI extends assQuestionGUI
 			$template = $this->plugin->getTemplate("tpl.il_as_qpl_Audio_output.html");
 			$template->setVariable("QUESTIONTEXT", $this->object->prepareTextareaOutput( $this->object->getQuestion(), TRUE));
 			$template->setVariable("ID", $this->object->getId());
-			$template->setVariable("SOLUTION", ilUtil::prepareFormOutput($user_solution[0]["value1"]));
+				
+			if ($user_solution[0]["value1"])
+			{
+				$path = $this->object->getFileUploadPath($active_id);
+				$content = file_get_contents ($path . $user_solution[0]["value1"]);
+				$template->setVariable("SOLUTION", ilUtil::prepareFormOutput(base64_encode($content)));
+			}
+
 			//language
 			$template->setVariable("RECORD",$this->plugin->txt("record"));
 			$template->setVariable("PAUSE",$this->plugin->txt("pause"));
@@ -242,7 +249,12 @@ class assAudioGUI extends assQuestionGUI
         	    $user_solution = array();
         	}
         	
-        	$value1 = $user_solution[0]["value1"];
+        	if ($user_solution[0]["value1"])
+        	{
+        		$path = $this->object->getFileUploadPath($active_id);
+        		$content = file_get_contents ($path . $user_solution[0]["value1"]);
+        		$value1 = base64_encode($content);
+        	}
         	
         	// generate the question output
         	$plugin       = $this->object->getPlugin();
