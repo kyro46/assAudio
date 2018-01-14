@@ -1,5 +1,5 @@
 {QUESTIONTEXT}
-<div id="visualizer" style = "text-align:center;">
+<div id="visualizerDiv_{ID}_audio" style = "text-align:center;">
     <canvas id="visualizer_{ID}_audio" height="60px"  margin-bottom: 0.5rem;"></canvas>
 </div>
 <div id="player" style = "text-align:center;">
@@ -142,16 +142,15 @@ mediaSource.addEventListener('sourceopen', handleSourceOpen, false);
 var sourceBuffer;
 */
 
-var mediaRecorder;
-var chunks = [];
-var count = 0;
+var mediaRecorder_{ID}_audio;
+var chunks_{ID}_audio = [];
 var interval_{ID}_audio = null;
 var presavecounter_{ID}_audio = 0;
 
 function presave_{ID}_audio() {
 	presavecounter_{ID}_audio++;
-	var blob_presave = new Blob(chunks, {type: "audio/webm"});
-	//var blob = new Blob(chunks, {type: "video/webm"});
+	var blob_presave = new Blob(chunks_{ID}_audio, {type: "audio/webm"});
+	//var blob = new Blob(chunks_{ID}_audio, {type: "video/webm"});
 
 	//save input as base64-string 
 	var answerAudio_presave = document.getElementById('question_{ID}_audio');	
@@ -175,7 +174,7 @@ function presave_{ID}_audio() {
 	}	
 }
 
-function startRecording_{ID}_audio(stream) {
+function startRecording_{ID}_audio(stream_{ID}_audio) {
 	log_{ID}_audio('Start recording...');
 	if (typeof MediaRecorder.isTypeSupported == 'function'){
 		/*
@@ -192,57 +191,57 @@ function startRecording_{ID}_audio(stream) {
 		
 		if (false) { // TODO if only audio, don't use the options
 			log_{ID}_audio('Using '+options.mimeType);
-			mediaRecorder = new MediaRecorder(stream, options);
+			mediaRecorder_{ID}_audio = new MediaRecorder(stream_{ID}_audio, options);
 		} else {
 			log_{ID}_audio('Using audio/webm');
-			mediaRecorder = new MediaRecorder(stream);
+			mediaRecorder_{ID}_audio = new MediaRecorder(stream_{ID}_audio);
 		}
 		
-	    visualize(stream);
+	    visualize_{ID}_audio(stream_{ID}_audio);
 		$('#visualizer_{ID}_audio').show();
 		
 	}else{
 		log_{ID}_audio('isTypeSupported is not supported, using default codecs for browser');
-		mediaRecorder = new MediaRecorder(stream);
+		mediaRecorder_{ID}_audio = new MediaRecorder(stream_{ID}_audio);
 	}
 
 	pauseResBtn_{ID}_audio.textContent = "{PAUSE}";
 
-	mediaRecorder.start(10);
+	mediaRecorder_{ID}_audio.start(10);
 	
 	//since the stream started, we can start to save it
 	interval_{ID}_audio = setInterval(presave_{ID}_audio, 5000);
 
 	var url = window.URL || window.webkitURL;
-	mediaElement_{ID}_audio.src = url ? url.createObjectURL(stream) : stream;
+	mediaElement_{ID}_audio.src = url ? url.createObjectURL(stream_{ID}_audio) : stream_{ID}_audio;
 	mediaElement_{ID}_audio.play();
 	$("#media_{ID}_audio").prop('muted', true);
 
-	mediaRecorder.ondataavailable = function(e) {
+	mediaRecorder_{ID}_audio.ondataavailable = function(e) {
 		//log('Data available...');
 		//console.log(e.data);
 		//console.log(e.data.type);
 		//console.log(e);
-		chunks.push(e.data);
+		chunks_{ID}_audio.push(e.data);
 	};
 
-	mediaRecorder.onerror = function(e){
+	mediaRecorder_{ID}_audio.onerror = function(e){
 		log_{ID}_audio('Error: ' + e);
 		console.log('Error: ', e);
 	};
 
 
-	mediaRecorder.onstart = function(){
-		log_{ID}_audio('Started & state = ' + mediaRecorder.state);
+	mediaRecorder_{ID}_audio.onstart = function(){
+		log_{ID}_audio('Started & state = ' + mediaRecorder_{ID}_audio.state);
 	};
 
-	mediaRecorder.onstop = function(){
-		log_{ID}_audio('Stopped  & state = ' + mediaRecorder.state);
+	mediaRecorder_{ID}_audio.onstop = function(){
+		log_{ID}_audio('Stopped  & state = ' + mediaRecorder_{ID}_audio.state);
 
 		
-		var blob = new Blob(chunks, {type: "audio/webm"});
-		//var blob = new Blob(chunks, {type: "video/webm"});
-		chunks = [];
+		var blob = new Blob(chunks_{ID}_audio, {type: "audio/webm"});
+		//var blob = new Blob(chunks_{ID}_audio, {type: "video/webm"});
+		chunks_{ID}_audio = [];
 
 		//save input as base64-string 
   		var answerAudio = document.getElementById('question_{ID}_audio');	
@@ -266,15 +265,15 @@ function startRecording_{ID}_audio(stream) {
 		downloadLink_{ID}_audio.setAttribute( "name", name);
 	};
 
-	mediaRecorder.onpause = function(){
-		log_{ID}_audio('Paused & state = ' + mediaRecorder.state);
+	mediaRecorder_{ID}_audio.onpause = function(){
+		log_{ID}_audio('Paused & state = ' + mediaRecorder_{ID}_audio.state);
 	}
 
-	mediaRecorder.onresume = function(){
-		log_{ID}_audio('Resumed  & state = ' + mediaRecorder.state);
+	mediaRecorder_{ID}_audio.onresume = function(){
+		log_{ID}_audio('Resumed  & state = ' + mediaRecorder_{ID}_audio.state);
 	}
 
-	mediaRecorder.onwarning = function(e){
+	mediaRecorder_{ID}_audio.onwarning = function(e){
 		log_{ID}_audio('Warning: ' + e);
 	};
 }
@@ -300,7 +299,7 @@ function onBtnRecordClicked_{ID}_audio (){
 
 function onBtnStopClicked_{ID}_audio(){
 	clearInterval(interval_{ID}_audio);
-	mediaRecorder.stop();
+	mediaRecorder_{ID}_audio.stop();
 	mediaElement_{ID}_audio.controls = true;
 	$("#media_{ID}_audio").prop('muted', false);
 	//$('#visualizer_{ID}_audio').hide();
@@ -315,12 +314,12 @@ function onPauseResumeClicked_{ID}_audio(){
 	if(pauseResBtn_{ID}_audio.textContent === "{PAUSE}"){
 		console.log("pause");
 		pauseResBtn_{ID}_audio.textContent = "{RESUME}";
-		mediaRecorder.pause();
+		mediaRecorder_{ID}_audio.pause();
 		stopBtn_{ID}_audio.disabled = true;
 	}else{
 		console.log("resume");
 		pauseResBtn_{ID}_audio.textContent = "{PAUSE}";
-		mediaRecorder.resume();
+		mediaRecorder_{ID}_audio.resume();
 		stopBtn_{ID}_audio.disabled = false;
 	}
 	recBtn_{ID}_audio.disabled = true;
@@ -399,8 +398,8 @@ function getBrowser(){
 }
 
 // function visualize taken from https://github.com/mdn/web-dictaphone
-function visualize(stream) {
-	  var source = audioCtx_{ID}_audio.createMediaStreamSource(stream);
+function visualize_{ID}_audio(stream_{ID}_audio) {
+	  var source = audioCtx_{ID}_audio.createMediaStreamSource(stream_{ID}_audio);
 
 	  var analyser = audioCtx_{ID}_audio.createAnalyser();
 	  analyser.fftSize = 2048;
@@ -410,13 +409,15 @@ function visualize(stream) {
 	  source.connect(analyser);
 	  //analyser.connect(audioCtx_{ID}_audio.destination);
 
-	  draw()
+	  draw_{ID}_audio()
 
-	  function draw() {
-	    WIDTH = canvas_{ID}_audio.width
-	    HEIGHT = canvas_{ID}_audio.height;
+	  function draw_{ID}_audio() {
+	    var WIDTH = canvas_{ID}_audio.width
+	    var HEIGHT = canvas_{ID}_audio.height;
 
-	    requestAnimationFrame(draw);
+	    canvasCtx_{ID}_audio.clearRect(0, 0, WIDTH, HEIGHT);
+	    
+	    requestAnimationFrame(draw_{ID}_audio);
 
 	    analyser.getByteTimeDomainData(dataArray);
 
