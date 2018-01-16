@@ -1,8 +1,9 @@
 <p>{QUESTIONTEXT}</p>
 <br/>
 <!-- BEGIN result_output -->
-<input type="hidden" id="question_{ID}_audio" name="question_{ID}_audio"  value='{RESULT_OUTPUT}'/>
+<input type="hidden" id="solution_{ID}_audio" name="solution_{ID}_audio"  value='{RESULT_OUTPUT}'/>
 <audio id='samplemedia_{ID}_audio' controls ></audio><br>
+<a id="downloadSolutionLink_{ID}_audio" download="mediarecorder_{ID}.webm" name="mediarecorder_{ID}.webm" href></a>
 <script>
 //Taken from https://jsfiddle.net/sanddune/uubnnr0w/
 function convertDataURIToBinary(dataURI) {
@@ -20,11 +21,10 @@ function convertDataURIToBinary(dataURI) {
 	}
 
 $(document).ready(function(){
-	var previousSolution = 'data:audio/webm;base64,' + document.getElementById('question_{ID}_audio').value;
+	var previousSolution = 'data:audio/webm;base64,' + document.getElementById('solution_{ID}_audio').value;
 	var previousSolutionOutput = document.getElementById('samplemedia_{ID}_audio');	
 
-
-	if (document.getElementById('question_{ID}_audio').value == '\n' || document.getElementById('question_{ID}_audio').value == '' || document.getElementById('question_{ID}_audio').value == null) {
+	if (document.getElementById('solution_{ID}_audio').value == '\n' || document.getElementById('solution_{ID}_audio').value == '' || document.getElementById('solution_{ID}_audio').value == null) {
 		//Something useful to do here?
 	} else {
 		//var base64ToBlob = atob(previousSolution.value);
@@ -36,6 +36,18 @@ $(document).ready(function(){
 		var url = window.URL || window.webkitURL;
 		previousSolutionOutput.src = url ? url.createObjectURL(blob) : blob;
 		previousSolutionOutput.load();
+		
+		var downloadSolutionLink_{ID}_audio = document.getElementById('downloadSolutionLink_{ID}_audio');	
+		var mediaURL = window.URL.createObjectURL(blob);
+
+		downloadSolutionLink_{ID}_audio.href = mediaURL;
+		downloadSolutionLink_{ID}_audio.innerHTML = 'Download';
+
+		var rand =  Math.floor((Math.random() * 10000000));
+		var name  = "media_"+rand+"_{ID}.webm" ;
+
+		downloadSolutionLink_{ID}_audio.setAttribute( "download", name);
+		downloadSolutionLink_{ID}_audio.setAttribute( "name", name);
 	}
 });
 </script>

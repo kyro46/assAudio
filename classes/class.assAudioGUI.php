@@ -263,8 +263,8 @@ class assAudioGUI extends assQuestionGUI
         	
         	if ($show_correct_solution)
         	{
-        	    //Not yet conceptualized.
-        	    $solutiontemplate->setVariable("FALLBACK", 'Sample solution not supported at the moment.');
+        	    //TODO Not yet conceptualized.
+        	    //$solutiontemplate->setVariable("FALLBACK", 'Sample solution not supported at the moment.');
         	    
         	    return $solutiontemplate->get();
         	    // hier nur die Musterlösung anzeigen, da wir uns im test beim drücken von check befinden ;)
