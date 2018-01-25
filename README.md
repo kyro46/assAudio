@@ -1,5 +1,5 @@
 # assAudio
-Audiorecorder-Questiontypeplugin for ILIAS 5.2.x
+Audiorecorder-Questiontypeplugin for ILIAS 5.2.x and 5.3.x
 
 ### Questiontype to record audio without a Java-Applet or Adobe Flash ###
 
