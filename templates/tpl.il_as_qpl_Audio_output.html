@@ -3,7 +3,7 @@
     <canvas id="visualizer_{ID}_audio" height="60px"  margin-bottom: 0.5rem;"></canvas>
 </div>
 <div id="player" style = "text-align:center;">
-	<audio id='media_{ID}_audio' controls onloadeddata='showDuration_{ID}_audio()' ></audio>
+	<audio id='media_{ID}_audio' controls controlsList="nodownload" onloadeddata='showDuration_{ID}_audio()' ></audio>
 </div>
 <div style = "text-align:center;">
 	<div id="recordingoptions_{ID}_audio" style = "text-align:center;"></div>
