@@ -483,7 +483,7 @@ class assAudio extends assQuestion
 	public function getSolutionSubmit()
 	{
 	    return array(
-	        'value1' => ilUtil::stripSlashes($_POST['question_'. $this->getId() . '_audio']),
+	        'value1' => ilUtil::stripSlashes($_POST['question_'. $this->getId()]),
 	    );
 	}
 	

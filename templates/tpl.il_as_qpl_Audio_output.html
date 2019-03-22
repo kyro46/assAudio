@@ -1,59 +1,59 @@
 {QUESTIONTEXT}
-<div id="visualizerDiv_{ID}_audio" style = "text-align:center;">
-    <canvas id="visualizer_{ID}_audio" height="60px"  margin-bottom: 0.5rem;"></canvas>
+<div id="visualizerDiv_{ID}" style = "text-align:center;">
+    <canvas id="visualizer_{ID}" height="60px"  margin-bottom: 0.5rem;"></canvas>
 </div>
 <div id="player" style = "text-align:center;">
-	<audio id='media_{ID}_audio' controls controlsList="nodownload" onloadeddata='showDuration_{ID}_audio()' ></audio>
+	<audio id='media_{ID}' controls controlsList="nodownload" onloadeddata='showDuration_{ID}()' ></audio>
 </div>
 <div style = "text-align:center;">
-	<div id="recordingoptions_{ID}_audio" style = "text-align:center;"></div>
-	<button class="btn btn-default" id="confirm_{ID}_audio" type=button>{RECORD}</button>
-	<button class="btn btn-default" id="pauseRes_{ID}_audio" type=button onclick="onPauseResumeClicked_{ID}_audio()" disabled>{PAUSE}</button>
-	<button class="btn btn-default" id="stop_{ID}_audio" type=button onclick="onBtnStopClicked_{ID}_audio()" disabled>{FINISH}</button>
+	<div id="recordingoptions_{ID}" style = "text-align:center;"></div>
+	<button class="btn btn-default" id="confirm_{ID}" type=button>{RECORD}</button>
+	<button class="btn btn-default" id="pauseRes_{ID}" type=button onclick="onPauseResumeClicked_{ID}()" disabled>{PAUSE}</button>
+	<button class="btn btn-default" id="stop_{ID}" type=button onclick="onBtnStopClicked_{ID}()" disabled>{FINISH}</button>
 </div>
 <br/>
-<div id="confirmation_{ID}_audio" style = "text-align:center; display: none;">
+<div id="confirmation_{ID}" style = "text-align:center; display: none;">
 	<strong>{OVERRIDEWARN}</strong>
 	<br/>
-	<button class="btn btn-default" id="cancelBtn_{ID}_audio" type=button onclick="">{CANCEL}</button>
-	<button class="btn btn-default" id="rec_{ID}_audio" type=button onclick="onBtnRecordClicked_{ID}_audio()">{STARTRECORDING}</button>
+	<button class="btn btn-default" id="cancelBtn_{ID}" type=button onclick="">{CANCEL}</button>
+	<button class="btn btn-default" id="rec_{ID}" type=button onclick="onBtnRecordClicked_{ID}()">{STARTRECORDING}</button>
 </div>
-<a style="display: none" id="downloadLink_{ID}_audio" download="mediarecorder_{ID}.webm" name="mediarecorder_{ID}.webm" href></a>
-<p style="display: none" id="data_{ID}_audio"></p>
+<a style="display: none" id="downloadLink_{ID}" download="mediarecorder_{ID}.webm" name="mediarecorder_{ID}.webm" href></a>
+<p style="display: none" id="data_{ID}"></p>
 
 <script>
-function showDuration_{ID}_audio(){
+function showDuration_{ID}(){
 	
-	var mediDuration_{ID}_audio = document.getElementById("media_{ID}_audio");
-	var duration_{ID}_audio = mediDuration_{ID}_audio.duration;
-	var output_{ID}_audio = '';
+	var mediDuration_{ID} = document.getElementById("media_{ID}");
+	var duration_{ID} = mediDuration_{ID}.duration;
+	var output_{ID} = '';
 	
 	if(getBrowser() == "Firefox") {
-		if (!isFinite(duration_{ID}_audio) && !isNaN(duration_{ID}_audio)){
-			output_{ID}_audio = '{MSG_RECORDINGSTARTED}';
-		} else if (isNaN(duration_{ID}_audio)) {
-	    	output_{ID}_audio = '{MSG_CURRENTLYNORECORDING}';
-		} else if (isFinite(duration_{ID}_audio)) {
-			output_{ID}_audio = '{MSG_EXISTING_DURATION_P1} ' + duration_{ID}_audio + ' {MSG_EXISTING_DURATION_P2}';
+		if (!isFinite(duration_{ID}) && !isNaN(duration_{ID})){
+			output_{ID} = '{MSG_RECORDINGSTARTED}';
+		} else if (isNaN(duration_{ID})) {
+	    	output_{ID} = '{MSG_CURRENTLYNORECORDING}';
+		} else if (isFinite(duration_{ID})) {
+			output_{ID} = '{MSG_EXISTING_DURATION_P1} ' + duration_{ID} + ' {MSG_EXISTING_DURATION_P2}';
 		} else {
-			output_{ID}_audio = ''
+			output_{ID} = ''
 		}
 	} else {
-		if (!isFinite(duration_{ID}_audio) && !isNaN(duration_{ID}_audio)){
-			output_{ID}_audio = '{MSG_EXISTING_ALTERNATE}';
-		} else if (isNaN(duration_{ID}_audio)) {
-	    	output_{ID}_audio = '{MSG_CURRENTLYNORECORDING}';
+		if (!isFinite(duration_{ID}) && !isNaN(duration_{ID})){
+			output_{ID} = '{MSG_EXISTING_ALTERNATE}';
+		} else if (isNaN(duration_{ID})) {
+	    	output_{ID} = '{MSG_CURRENTLYNORECORDING}';
 		}
 	}
-	document.getElementById("recordingoptions_{ID}_audio").innerHTML = output_{ID}_audio;
+	document.getElementById("recordingoptions_{ID}").innerHTML = output_{ID};
 }
 
 //Toggle Confirmation dialog
-document.getElementById("confirm_{ID}_audio").addEventListener("click", function(){
-    document.getElementById("confirmation_{ID}_audio").style.display = "block";
+document.getElementById("confirm_{ID}").addEventListener("click", function(){
+    document.getElementById("confirmation_{ID}").style.display = "block";
 });
-document.getElementById("cancelBtn_{ID}_audio").addEventListener("click", function(){
-    document.getElementById("confirmation_{ID}_audio").style.display = "none";
+document.getElementById("cancelBtn_{ID}").addEventListener("click", function(){
+    document.getElementById("confirmation_{ID}").style.display = "none";
 });
 
 //Taken from https://jsfiddle.net/sanddune/uubnnr0w/
@@ -72,11 +72,11 @@ function convertDataURIToBinary(dataURI) {
 	}
 
 $(document).ready(function(){
-	var previousSolution = 'data:audio/webm;base64,' + document.getElementById('question_{ID}_audio').value;
-	var previousSolutionOutput = document.getElementById('media_{ID}_audio');
+	var previousSolution = 'data:audio/webm;base64,' + document.getElementById('question_{ID}').value;
+	var previousSolutionOutput = document.getElementById('media_{ID}');
 
 
-	if (document.getElementById('question_{ID}_audio').value == '\n' || document.getElementById('question_{ID}_audio').value == '' || document.getElementById('question_{ID}_audio').value == null) {
+	if (document.getElementById('question_{ID}').value == '\n' || document.getElementById('question_{ID}').value == '' || document.getElementById('question_{ID}').value == null) {
 		//Something useful to do here?
 	} else {
 		//var base64ToBlob = atob(previousSolution.value);
@@ -89,7 +89,7 @@ $(document).ready(function(){
 		previousSolutionOutput.src = url ? url.createObjectURL(blob) : blob;
 		previousSolutionOutput.load();
 	}
-	showDuration_{ID}_audio();
+	showDuration_{ID}();
 });
 
 // Inspired https://addpipe.com/media-recorder-api-demo/
@@ -100,38 +100,38 @@ $(document).ready(function(){
 
 // Spec is at http://dvcs.w3.org/hg/dap/raw-file/tip/media-stream-capture/RecordingProposal.html
 
-var constraints = { audio: true };
+var constraints = { audio: true }; 
 
-var recBtn_{ID}_audio = document.getElementById('rec_{ID}_audio');	
-var confirmBtn_{ID}_audio = document.getElementById('confirm_{ID}_audio');	
-var pauseResBtn_{ID}_audio = document.getElementById('pauseRes_{ID}_audio');	
-var stopBtn_{ID}_audio = document.getElementById('stop_{ID}_audio');	
+var recBtn_{ID} = document.getElementById('rec_{ID}');	
+var confirmBtn_{ID} = document.getElementById('confirm_{ID}');	
+var pauseResBtn_{ID} = document.getElementById('pauseRes_{ID}');	
+var stopBtn_{ID} = document.getElementById('stop_{ID}');	
 
 //Creating a visual feedback, following https://developer.mozilla.org/en-US/docs/Web/API/MediaStream_Recording_API/Using_the_MediaStream_Recording_API
-var canvas_{ID}_audio = document.getElementById('visualizer_{ID}_audio');
-var audioCtx_{ID}_audio = new (window.AudioContext || webkitAudioContext)();
-var canvasCtx_{ID}_audio = canvas_{ID}_audio.getContext("2d");
+var canvas_{ID} = document.getElementById('visualizer_{ID}');
+var audioCtx_{ID} = new (window.AudioContext || webkitAudioContext)();
+var canvasCtx_{ID} = canvas_{ID}.getContext("2d");
 
-var mediaElement_{ID}_audio = document.getElementById('media_{ID}_audio');	
-var dataElement_{ID}_audio = document.getElementById('data_{ID}_audio');	
-var downloadLink_{ID}_audio = document.getElementById('downloadLink_{ID}_audio');	
+var mediaElement_{ID} = document.getElementById('media_{ID}');	
+var dataElement_{ID} = document.getElementById('data_{ID}');	
+var downloadLink_{ID} = document.getElementById('downloadLink_{ID}');	
 
 //Show the player while recording to present the current length of the recording
-//mediaElement_{ID}_audio.controls = false;
+//mediaElement_{ID}.controls = false;
 
-var mediaRecorder_{ID}_audio;
-var chunks_{ID}_audio = [];
-var interval_{ID}_audio = null;
-var presavecounter_{ID}_audio = 0;
-var localstream_{ID}_audio = null;
+var mediaRecorder_{ID};
+var chunks_{ID} = [];
+var interval_{ID} = null;
+var presavecounter_{ID} = 0;
+var localstream_{ID} = null;
 
-function presave_{ID}_audio() {
-	presavecounter_{ID}_audio++;
-	var blob_presave = new Blob(chunks_{ID}_audio, {type: "audio/webm"});
-	//var blob = new Blob(chunks_{ID}_audio, {type: "video/webm"});
+function presave_{ID}() {
+	presavecounter_{ID}++;
+	var blob_presave = new Blob(chunks_{ID}, {type: "audio/webm"});
+	//var blob = new Blob(chunks_{ID}, {type: "video/webm"});
 
 	//save input as base64-string 
-	var answerAudio_presave = document.getElementById('question_{ID}_audio');	
+	var answerAudio_presave = document.getElementById('question_{ID}');	
 	var reader_presave = new window.FileReader();
 	reader_presave.readAsBinaryString(blob_presave); 
 	reader_presave.onloadend = function() {
@@ -140,20 +140,20 @@ function presave_{ID}_audio() {
 	}
 	
 	//After 1 Minute increase the presave interval from 5 to 10 seconds
-	if (presavecounter_{ID}_audio  == 12) {
-		clearInterval(interval_{ID}_audio);
-		interval_{ID}_audio = setInterval(presave_{ID}_audio, 10000);
+	if (presavecounter_{ID}  == 12) {
+		clearInterval(interval_{ID});
+		interval_{ID} = setInterval(presave_{ID}, 10000);
 	}
 	
 	//After another 4 minutes, 5 minutes total, increase the presave interval from 10 to 20 seconds
-	if (presavecounter_{ID}_audio  == 24) {
-		clearInterval(interval_{ID}_audio);
-		interval_{ID}_audio = setInterval(presave_{ID}_audio, 20000);
+	if (presavecounter_{ID}  == 24) {
+		clearInterval(interval_{ID});
+		interval_{ID} = setInterval(presave_{ID}, 20000);
 	}	
 }
 
-function onBtnRecordClicked_{ID}_audio (){
-	document.getElementById("confirmation_{ID}_audio").style.display = "none";
+function onBtnRecordClicked_{ID} (){
+	document.getElementById("confirmation_{ID}").style.display = "none";
 	console.log("initialize stream");
 	if (!navigator.mediaDevices.getUserMedia){
 		alert('navigator.mediaDevices.getUserMedia not supported on your browser, use the latest version of Firefox or Chrome');
@@ -161,16 +161,16 @@ function onBtnRecordClicked_{ID}_audio (){
 		if (window.MediaRecorder == undefined) {
 				alert('MediaRecorder not supported on your browser, use the latest version of Firefox or Chrome');
 		}else{
-			recBtn_{ID}_audio.disabled = true;
-			confirmBtn_{ID}_audio.disabled = true;
-			pauseResBtn_{ID}_audio.disabled = false;
-			stopBtn_{ID}_audio.disabled = false;
+			recBtn_{ID}.disabled = true;
+			confirmBtn_{ID}.disabled = true;
+			pauseResBtn_{ID}.disabled = false;
+			stopBtn_{ID}.disabled = false;
 			
 			navigator.mediaDevices.getUserMedia(constraints)
 				.then(function(stream) {
-					localstream_{ID}_audio = stream;
+					localstream_{ID} = stream;
 					
-					localstream_{ID}_audio.getTracks().forEach(function(track) {
+					localstream_{ID}.getTracks().forEach(function(track) {
 						if(track.kind == "audio"){
 							track.onended = function(event){
 								 console.log("audio track.onended Audio track.readyState="+track.readyState+", track.muted=" + track.muted);
@@ -183,8 +183,8 @@ function onBtnRecordClicked_{ID}_audio (){
 						}
 					});
 					
-					mediaElement_{ID}_audio.srcObject = localstream_{ID}_audio;
-					startRecording_{ID}_audio(stream);
+					mediaElement_{ID}.srcObject = localstream_{ID};
+					startRecording_{ID}(stream);
 
 				}).catch(function(err) {
 					console.log('navigator.getUserMedia error: '+err);
@@ -195,52 +195,52 @@ function onBtnRecordClicked_{ID}_audio (){
 	}
 }
 
-function startRecording_{ID}_audio(stream) {
+function startRecording_{ID}(stream) {
 	console.log('Start recording...');
-	mediaRecorder_{ID}_audio = new MediaRecorder(stream);
+	mediaRecorder_{ID} = new MediaRecorder(stream);
 
-    visualize_{ID}_audio(localstream_{ID}_audio);
-	$('#visualizer_{ID}_audio').show();
+    visualize_{ID}(localstream_{ID});
+	$('#visualizer_{ID}').show();
 	
 	
-	pauseResBtn_{ID}_audio.textContent = "{PAUSE}";
+	pauseResBtn_{ID}.textContent = "{PAUSE}";
 
-	mediaRecorder_{ID}_audio.start(10);
+	mediaRecorder_{ID}.start(10);
 	
 	//since the stream started, we can start to save it
-	interval_{ID}_audio = setInterval(presave_{ID}_audio, 5000);
+	interval_{ID} = setInterval(presave_{ID}, 5000);
 
-	mediaElement_{ID}_audio.srcObject =  localstream_{ID}_audio;
-	mediaElement_{ID}_audio.play();
-	$("#media_{ID}_audio").prop('muted', true);
+	mediaElement_{ID}.srcObject =  localstream_{ID};
+	mediaElement_{ID}.play();
+	$("#media_{ID}").prop('muted', true);
 
-	mediaRecorder_{ID}_audio.ondataavailable = function(e) {
+	mediaRecorder_{ID}.ondataavailable = function(e) {
 		//log('Data available...');
 		//console.log(e.data);
 		//console.log(e.data.type);
 		//console.log(e);
-		chunks_{ID}_audio.push(e.data);
+		chunks_{ID}.push(e.data);
 	};
 
-	mediaRecorder_{ID}_audio.onerror = function(e){
+	mediaRecorder_{ID}.onerror = function(e){
 		console.log('Error: ' + e);
 		console.log('Error: ', e);
 	};
 
 
-	mediaRecorder_{ID}_audio.onstart = function(){
-		console.log('Started & state = ' + mediaRecorder_{ID}_audio.state);
+	mediaRecorder_{ID}.onstart = function(){
+		console.log('Started & state = ' + mediaRecorder_{ID}.state);
 	};
 
-	mediaRecorder_{ID}_audio.onstop = function(){
-		console.log('Stopped  & state = ' + mediaRecorder_{ID}_audio.state);
+	mediaRecorder_{ID}.onstop = function(){
+		console.log('Stopped  & state = ' + mediaRecorder_{ID}.state);
 
-		var blob = new Blob(chunks_{ID}_audio, {type: "audio/webm"});
-		//var blob = new Blob(chunks_{ID}_audio, {type: "video/webm"});
-		chunks_{ID}_audio = [];
+		var blob = new Blob(chunks_{ID}, {type: "audio/webm"});
+		//var blob = new Blob(chunks_{ID}, {type: "video/webm"});
+		chunks_{ID} = [];
 			
 		//save input as base64-string 
-  		var answerAudio = document.getElementById('question_{ID}_audio');	
+  		var answerAudio = document.getElementById('question_{ID}');	
 		var reader = new window.FileReader();
 		reader.readAsBinaryString(blob); 
 		reader.onloadend = function() {
@@ -250,64 +250,64 @@ function startRecording_{ID}_audio(stream) {
 
 		var mediaURL = window.URL.createObjectURL(blob);
 
-		downloadLink_{ID}_audio.href = mediaURL;
+		downloadLink_{ID}.href = mediaURL;
 		
-		mediaElement_{ID}_audio.srcObject = null;
-		mediaElement_{ID}_audio.src = mediaURL;
-		downloadLink_{ID}_audio.innerHTML = 'Download file';
+		mediaElement_{ID}.srcObject = null;
+		mediaElement_{ID}.src = mediaURL;
+		downloadLink_{ID}.innerHTML = 'Download file';
 
 		var rand =  Math.floor((Math.random() * 10000000));
 		var name  = "media_"+rand+".webm" ;
 
-		downloadLink_{ID}_audio.setAttribute( "download", name);
-		downloadLink_{ID}_audio.setAttribute( "name", name);
+		downloadLink_{ID}.setAttribute( "download", name);
+		downloadLink_{ID}.setAttribute( "name", name);
 	};
 
-	mediaRecorder_{ID}_audio.onpause = function(){
-		console.log('Paused & state = ' + mediaRecorder_{ID}_audio.state);
+	mediaRecorder_{ID}.onpause = function(){
+		console.log('Paused & state = ' + mediaRecorder_{ID}.state);
 	}
 
-	mediaRecorder_{ID}_audio.onresume = function(){
-		console.log('Resumed  & state = ' + mediaRecorder_{ID}_audio.state);
+	mediaRecorder_{ID}.onresume = function(){
+		console.log('Resumed  & state = ' + mediaRecorder_{ID}.state);
 	}
 
-	mediaRecorder_{ID}_audio.onwarning = function(e){
+	mediaRecorder_{ID}.onwarning = function(e){
 		console.log('Warning: ' + e);
 	};
 }
 
-function onBtnStopClicked_{ID}_audio(){
-	clearInterval(interval_{ID}_audio);
-	mediaRecorder_{ID}_audio.stop();
-	mediaElement_{ID}_audio.controls = true;
-	$("#media_{ID}_audio").prop('muted', false);
-	//$('#visualizer_{ID}_audio').hide();
+function onBtnStopClicked_{ID}(){
+	clearInterval(interval_{ID});
+	mediaRecorder_{ID}.stop();
+	mediaElement_{ID}.controls = true;
+	$("#media_{ID}").prop('muted', false);
+	//$('#visualizer_{ID}').hide();
 
-	recBtn_{ID}_audio.disabled = false;
-	confirmBtn_{ID}_audio.disabled = false;
-	pauseResBtn_{ID}_audio.disabled = true;
-	stopBtn_{ID}_audio.disabled = true;
+	recBtn_{ID}.disabled = false;
+	confirmBtn_{ID}.disabled = false;
+	pauseResBtn_{ID}.disabled = true;
+	stopBtn_{ID}.disabled = true;
 }
 
-function onPauseResumeClicked_{ID}_audio(){
-	if(pauseResBtn_{ID}_audio.textContent === "{PAUSE}"){
+function onPauseResumeClicked_{ID}(){
+	if(pauseResBtn_{ID}.textContent === "{PAUSE}"){
 		console.log("pause");
-		pauseResBtn_{ID}_audio.textContent = "{RESUME}";
-		mediaRecorder_{ID}_audio.pause();
-		stopBtn_{ID}_audio.disabled = true;
+		pauseResBtn_{ID}.textContent = "{RESUME}";
+		mediaRecorder_{ID}.pause();
+		stopBtn_{ID}.disabled = true;
 	}else{
 		console.log("resume");
-		pauseResBtn_{ID}_audio.textContent = "{PAUSE}";
-		mediaRecorder_{ID}_audio.resume();
-		stopBtn_{ID}_audio.disabled = false;
+		pauseResBtn_{ID}.textContent = "{PAUSE}";
+		mediaRecorder_{ID}.resume();
+		stopBtn_{ID}.disabled = false;
 	}
-	recBtn_{ID}_audio.disabled = true;
-	pauseResBtn_{ID}_audio.disabled = false;
+	recBtn_{ID}.disabled = true;
+	pauseResBtn_{ID}.disabled = false;
 }
 
 
-function log_{ID}_audio(message){
-	dataElement_{ID}_audio.innerHTML = dataElement_{ID}_audio.innerHTML+'<br>'+message ;
+function log_{ID}(message){
+	dataElement_{ID}.innerHTML = dataElement_{ID}.innerHTML+'<br>'+message ;
 }
 
 
@@ -377,37 +377,37 @@ function getBrowser(){
 }
 
 // function visualize taken from https://github.com/mdn/web-dictaphone
-function visualize_{ID}_audio(stream_{ID}_audio) {
-	  var source = audioCtx_{ID}_audio.createMediaStreamSource(stream_{ID}_audio);
+function visualize_{ID}(stream_{ID}) {
+	  var source = audioCtx_{ID}.createMediaStreamSource(stream_{ID});
 
-	  var analyser = audioCtx_{ID}_audio.createAnalyser();
+	  var analyser = audioCtx_{ID}.createAnalyser();
 	  analyser.fftSize = 2048;
 	  var bufferLength = analyser.frequencyBinCount;
 	  var dataArray = new Uint8Array(bufferLength);
 
 	  source.connect(analyser);
-	  //analyser.connect(audioCtx_{ID}_audio.destination);
+	  //analyser.connect(audioCtx_{ID}.destination);
 
-	  draw_{ID}_audio()
+	  draw_{ID}()
 
-	  function draw_{ID}_audio() {
-	    var WIDTH = canvas_{ID}_audio.width
-	    var HEIGHT = canvas_{ID}_audio.height;
+	  function draw_{ID}() {
+	    var WIDTH = canvas_{ID}.width
+	    var HEIGHT = canvas_{ID}.height;
 
-	    canvasCtx_{ID}_audio.clearRect(0, 0, WIDTH, HEIGHT);
+	    canvasCtx_{ID}.clearRect(0, 0, WIDTH, HEIGHT);
 	    
-	    requestAnimationFrame(draw_{ID}_audio);
+	    requestAnimationFrame(draw_{ID});
 
 	    analyser.getByteTimeDomainData(dataArray);
 
 	    var color = $('.ilc_question_Standard').css("background-color");
-	    canvasCtx_{ID}_audio.fillStyle = color;
-	    canvasCtx_{ID}_audio.fillRect(0, 0, WIDTH, HEIGHT);
+	    canvasCtx_{ID}.fillStyle = color;
+	    canvasCtx_{ID}.fillRect(0, 0, WIDTH, HEIGHT);
 
-	    canvasCtx_{ID}_audio.lineWidth = 2;
-	    canvasCtx_{ID}_audio.strokeStyle = 'rgb(0, 0, 0)';
+	    canvasCtx_{ID}.lineWidth = 2;
+	    canvasCtx_{ID}.strokeStyle = 'rgb(0, 0, 0)';
 
-	    canvasCtx_{ID}_audio.beginPath();
+	    canvasCtx_{ID}.beginPath();
 
 	    var sliceWidth = WIDTH * 1.0 / bufferLength;
 	    var x = 0;
@@ -419,24 +419,24 @@ function visualize_{ID}_audio(stream_{ID}_audio) {
 	      var y = v * HEIGHT/2;
 
 	      if(i === 0) {
-	        canvasCtx_{ID}_audio.moveTo(x, y);
+	        canvasCtx_{ID}.moveTo(x, y);
 	      } else {
-	        canvasCtx_{ID}_audio.lineTo(x, y);
+	        canvasCtx_{ID}.lineTo(x, y);
 	      }
 
 	      x += sliceWidth;
 	    }
 
-	    canvasCtx_{ID}_audio.lineTo(canvas_{ID}_audio.width, canvas_{ID}_audio.height/2);
-	    canvasCtx_{ID}_audio.stroke();
+	    canvasCtx_{ID}.lineTo(canvas_{ID}.width, canvas_{ID}.height/2);
+	    canvasCtx_{ID}.stroke();
 
 	  }
 }
 
 window.onresize = function() {
-	  canvas_{ID}_audio.width = mediaElement_{ID}_audio.offsetWidth;
+	  canvas_{ID}.width = mediaElement_{ID}.offsetWidth;
 }
 
 window.onresize();
 </script>
-<input type="hidden" id="question_{ID}_audio" name="question_{ID}"  value='{SOLUTION}'/>
+<input type="hidden" id="question_{ID}" name="question_{ID}"  value='{SOLUTION}'/>
