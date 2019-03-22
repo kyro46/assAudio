@@ -92,9 +92,7 @@ $(document).ready(function(){
 	showDuration_{ID}_audio();
 });
 
-
-
-// Taken from https://addpipe.com/media-recorder-api-demo/
+// Inspired https://addpipe.com/media-recorder-api-demo/
 
 'use strict';
 
@@ -102,18 +100,7 @@ $(document).ready(function(){
 
 // Spec is at http://dvcs.w3.org/hg/dap/raw-file/tip/media-stream-capture/RecordingProposal.html
 
-navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-
-
-if(getBrowser() == "Chrome"){
-	// TODO insert switch if only audio
-	var constraints_video = {"audio": true, "video": {  "mandatory": {  "minWidth": 640,  "maxWidth": 640, "minHeight": 480,"maxHeight": 480 }, "optional": [] } };//Chrome
-	var constraints_audio = {"audio": true};//Chrome
-}else if(getBrowser() == "Firefox"){
-	// TODO insert switch if only audio
-	var constraints_video = {audio: true,video: {  width: { min: 640, ideal: 640, max: 640 },  height: { min: 480, ideal: 480, max: 480 }}}; //Firefox
-	var constraints_audio = {audio: true}; //Firefox
-}
+var constraints = { audio: true };
 
 var recBtn_{ID}_audio = document.getElementById('rec_{ID}_audio');	
 var confirmBtn_{ID}_audio = document.getElementById('confirm_{ID}_audio');	
@@ -132,20 +119,11 @@ var downloadLink_{ID}_audio = document.getElementById('downloadLink_{ID}_audio')
 //Show the player while recording to present the current length of the recording
 //mediaElement_{ID}_audio.controls = false;
 
-function errorCallback(error){
-	console.log_{ID}_audio('navigator.getUserMedia error: ', error);	
-}
-
-/*
-var mediaSource = new MediaSource();
-mediaSource.addEventListener('sourceopen', handleSourceOpen, false);
-var sourceBuffer;
-*/
-
 var mediaRecorder_{ID}_audio;
 var chunks_{ID}_audio = [];
 var interval_{ID}_audio = null;
 var presavecounter_{ID}_audio = 0;
+var localstream_{ID}_audio = null;
 
 function presave_{ID}_audio() {
 	presavecounter_{ID}_audio++;
@@ -174,37 +152,57 @@ function presave_{ID}_audio() {
 	}	
 }
 
-function startRecording_{ID}_audio(stream_{ID}_audio) {
-	log_{ID}_audio('Start recording...');
-	if (typeof MediaRecorder.isTypeSupported == 'function'){
-		/*
-			MediaRecorder.isTypeSupported is a function announced in https://developers.google.com/web/updates/2016/01/mediarecorder and later introduced in the MediaRecorder API spec http://www.w3.org/TR/mediastream-recording/
-		*/
-
-			if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
-				  var options = {mimeType: 'video/webm;codecs=vp9'};
-				} else if (MediaRecorder.isTypeSupported('video/webm;codecs=h264')) {
-				  var options = {mimeType: 'video/webm;codecs=h264'};
-				} else  if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
-				  var options = {mimeType: 'video/webm;codecs=vp8'};
-				}
-		
-		if (false) { // TODO if only audio, don't use the options
-			log_{ID}_audio('Using '+options.mimeType);
-			mediaRecorder_{ID}_audio = new MediaRecorder(stream_{ID}_audio, options);
-		} else {
-			log_{ID}_audio('Using audio/webm');
-			mediaRecorder_{ID}_audio = new MediaRecorder(stream_{ID}_audio);
-		}
-		
-	    visualize_{ID}_audio(stream_{ID}_audio);
-		$('#visualizer_{ID}_audio').show();
-		
+function onBtnRecordClicked_{ID}_audio (){
+	document.getElementById("confirmation_{ID}_audio").style.display = "none";
+	console.log("initialize stream");
+	if (!navigator.mediaDevices.getUserMedia){
+		alert('navigator.mediaDevices.getUserMedia not supported on your browser, use the latest version of Firefox or Chrome');
 	}else{
-		log_{ID}_audio('isTypeSupported is not supported, using default codecs for browser');
-		mediaRecorder_{ID}_audio = new MediaRecorder(stream_{ID}_audio);
-	}
+		if (window.MediaRecorder == undefined) {
+				alert('MediaRecorder not supported on your browser, use the latest version of Firefox or Chrome');
+		}else{
+			recBtn_{ID}_audio.disabled = true;
+			confirmBtn_{ID}_audio.disabled = true;
+			pauseResBtn_{ID}_audio.disabled = false;
+			stopBtn_{ID}_audio.disabled = false;
+			
+			navigator.mediaDevices.getUserMedia(constraints)
+				.then(function(stream) {
+					localstream_{ID}_audio = stream;
+					
+					localstream_{ID}_audio.getTracks().forEach(function(track) {
+						if(track.kind == "audio"){
+							track.onended = function(event){
+								 console.log("audio track.onended Audio track.readyState="+track.readyState+", track.muted=" + track.muted);
+							}
+						}
+						if(track.kind == "video"){
+							track.onended = function(event){
+								console.log("video track.onended Audio track.readyState="+track.readyState+", track.muted=" + track.muted);
+							}
+						}
+					});
+					
+					mediaElement_{ID}_audio.srcObject = localstream_{ID}_audio;
+					startRecording_{ID}_audio(stream);
 
+				}).catch(function(err) {
+					console.log('navigator.getUserMedia error: '+err);
+				});			
+
+			console.log("switch to recording");
+		}
+	}
+}
+
+function startRecording_{ID}_audio(stream) {
+	console.log('Start recording...');
+	mediaRecorder_{ID}_audio = new MediaRecorder(stream);
+
+    visualize_{ID}_audio(localstream_{ID}_audio);
+	$('#visualizer_{ID}_audio').show();
+	
+	
 	pauseResBtn_{ID}_audio.textContent = "{PAUSE}";
 
 	mediaRecorder_{ID}_audio.start(10);
@@ -212,8 +210,7 @@ function startRecording_{ID}_audio(stream_{ID}_audio) {
 	//since the stream started, we can start to save it
 	interval_{ID}_audio = setInterval(presave_{ID}_audio, 5000);
 
-	var url = window.URL || window.webkitURL;
-	mediaElement_{ID}_audio.src = url ? url.createObjectURL(stream_{ID}_audio) : stream_{ID}_audio;
+	mediaElement_{ID}_audio.srcObject =  localstream_{ID}_audio;
 	mediaElement_{ID}_audio.play();
 	$("#media_{ID}_audio").prop('muted', true);
 
@@ -226,23 +223,22 @@ function startRecording_{ID}_audio(stream_{ID}_audio) {
 	};
 
 	mediaRecorder_{ID}_audio.onerror = function(e){
-		log_{ID}_audio('Error: ' + e);
+		console.log('Error: ' + e);
 		console.log('Error: ', e);
 	};
 
 
 	mediaRecorder_{ID}_audio.onstart = function(){
-		log_{ID}_audio('Started & state = ' + mediaRecorder_{ID}_audio.state);
+		console.log('Started & state = ' + mediaRecorder_{ID}_audio.state);
 	};
 
 	mediaRecorder_{ID}_audio.onstop = function(){
-		log_{ID}_audio('Stopped  & state = ' + mediaRecorder_{ID}_audio.state);
+		console.log('Stopped  & state = ' + mediaRecorder_{ID}_audio.state);
 
-		
 		var blob = new Blob(chunks_{ID}_audio, {type: "audio/webm"});
 		//var blob = new Blob(chunks_{ID}_audio, {type: "video/webm"});
 		chunks_{ID}_audio = [];
-
+			
 		//save input as base64-string 
   		var answerAudio = document.getElementById('question_{ID}_audio');	
 		var reader = new window.FileReader();
@@ -255,6 +251,8 @@ function startRecording_{ID}_audio(stream_{ID}_audio) {
 		var mediaURL = window.URL.createObjectURL(blob);
 
 		downloadLink_{ID}_audio.href = mediaURL;
+		
+		mediaElement_{ID}_audio.srcObject = null;
 		mediaElement_{ID}_audio.src = mediaURL;
 		downloadLink_{ID}_audio.innerHTML = 'Download file';
 
@@ -266,35 +264,16 @@ function startRecording_{ID}_audio(stream_{ID}_audio) {
 	};
 
 	mediaRecorder_{ID}_audio.onpause = function(){
-		log_{ID}_audio('Paused & state = ' + mediaRecorder_{ID}_audio.state);
+		console.log('Paused & state = ' + mediaRecorder_{ID}_audio.state);
 	}
 
 	mediaRecorder_{ID}_audio.onresume = function(){
-		log_{ID}_audio('Resumed  & state = ' + mediaRecorder_{ID}_audio.state);
+		console.log('Resumed  & state = ' + mediaRecorder_{ID}_audio.state);
 	}
 
 	mediaRecorder_{ID}_audio.onwarning = function(e){
-		log_{ID}_audio('Warning: ' + e);
+		console.log('Warning: ' + e);
 	};
-}
-
-//function handleSourceOpen(event) {
-//  console.log('MediaSource opened');
-//  sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp9"');
-//  console.log('Source buffer: ', sourceBuffer);
-//}
-
-function onBtnRecordClicked_{ID}_audio (){
-	document.getElementById("confirmation_{ID}_audio").style.display = "none";
-	 if (typeof MediaRecorder === 'undefined' || !navigator.getUserMedia) {
-		alert('MediaRecorder not supported on your browser, use Firefox 30+ or Chrome 49+ instead.');
-	}else {
-		navigator.getUserMedia(constraints_audio, startRecording_{ID}_audio, errorCallback);
-		recBtn_{ID}_audio.disabled = true;
-		confirmBtn_{ID}_audio.disabled = true;
-		pauseResBtn_{ID}_audio.disabled = false;
-		stopBtn_{ID}_audio.disabled = false;
-	}
 }
 
 function onBtnStopClicked_{ID}_audio(){
@@ -460,4 +439,4 @@ window.onresize = function() {
 
 window.onresize();
 </script>
-<input type="hidden" id="question_{ID}_audio" name="question_{ID}_audio"  value='{SOLUTION}'/>
+<input type="hidden" id="question_{ID}_audio" name="question_{ID}"  value='{SOLUTION}'/>
