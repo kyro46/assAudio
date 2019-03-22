@@ -36,9 +36,10 @@ and activate it in the ILIAS-Admin-GUI. Activate manual correction.
 ### Known Problems ###
 
 * The plugin uses a flash-free approach which is not yet compatible with all browsers as the technology is currently work-in-progress at W3C. See:
-  * https://caniuse.com/#feat=mediarecorder
   * https://www.w3.org/TR/mediastream-recording/
+  * https://caniuse.com/#feat=mediarecorder
+  
 * Textual feedback about the length of a recording is only provided in Firefox
 
 ### Credits ###
-* Development for ILIAS 5.2 by Christoph Jobst
+* Development by Christoph Jobst
