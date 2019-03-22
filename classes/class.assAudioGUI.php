@@ -303,17 +303,19 @@ class assAudioGUI extends assQuestionGUI
 
 	/**
 	 * Returns the answer specific feedback for the question
-	 *
-	 * @param array $userSolution solution of the participant
+	 * 
+	 * @param integer $active_id Active ID of the user
+	 * @param integer $pass Active pass
 	 * @return string HTML Code with the answer specific feedback
 	 * @access public
 	 */
-	function getSpecificFeedbackOutput($userSolution)
+	function getSpecificFeedbackOutput($active_id, $pass)
 	{
-	    // By default no answer specific feedback is defined
-	    $output = "";
-	    return $this->object->prepareTextareaOutput($output, TRUE);
+		// By default no answer specific feedback is defined
+		$output = "";
+		return $this->object->prepareTextareaOutput($output, TRUE);
 	}
+	
 	
 	/**
 	* Sets the ILIAS tabs for this question type
