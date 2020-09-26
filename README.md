@@ -1,5 +1,5 @@
 # assAudio
-Audiorecorder-Questiontypeplugin for ILIAS 5.4 (for 5.2.x and 5.3.x see releases)
+Audiorecorder-Questiontypeplugin for ILIAS 6 (for 5.2.x to 5.4.x see branches and releases)
 
 ### Questiontype to record audio without a Java-Applet or Adobe Flash ###
 
@@ -34,6 +34,8 @@ git clone https://github.com/kyro46/assAudio.git
 and activate it in the ILIAS-Admin-GUI. Activate manual correction.
 
 ### Known Problems ###
+
+* Audio capture not yet possible with Safe Exam Browser 3.x
 
 * The plugin uses a flash-free approach which is not yet compatible with all browsers as the technology is currently work-in-progress at W3C. See:
   * https://www.w3.org/TR/mediastream-recording/

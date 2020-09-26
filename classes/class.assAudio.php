@@ -127,8 +127,11 @@ class assAudio extends assQuestion
 		$this->setQuestion(ilRTE::_replaceMediaObjectImageSrc($data["question_text"], 1));
 		$this->setEstimatedWorkingTime(substr($data["working_time"], 0, 2), substr($data["working_time"], 3, 2), substr($data["working_time"], 6, 2));
 
-		// now you can load additional data
-		// ...
+		try {
+			$this->setLifecycle(ilAssQuestionLifecycle::getInstance($data['lifecycle']));
+		} catch (ilTestQuestionPoolInvalidArgumentException $e) {
+			$this->setLifecycle(ilAssQuestionLifecycle::getDraftInstance());
+		}
 
 		try
 		{
