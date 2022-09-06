@@ -445,11 +445,11 @@ class assAudio extends assQuestion
 	 * @access public
 	 * @see assQuestion::fromXML()
 	 */
-	function fromXML(&$item, &$questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping)
+	function fromXML(&$item, &$questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping, array $solutionhints = [])
 	{
 		$this->getPlugin()->includeClass("import/qti12/class.assAudioImport.php");
 		$import = new assAudioImport($this);
-		$import->fromXML($item, $questionpool_id, $tst_id, $tst_object, $question_counter, $import_mapping);
+		$import->fromXML($item, $questionpool_id, $tst_id, $tst_object, $question_counter, $import_mapping, $solutionhints);
 	}
 
 	/**
