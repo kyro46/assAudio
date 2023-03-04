@@ -372,6 +372,44 @@ class assAudio extends assQuestion
 		// normally nothing needs to be reworked
 	}
 
+	/**
+	 * Create a new original question in a question pool for a test question
+	 * @param int $targetParentId			id of the target question pool
+	 * @param string $targetQuestionTitle
+	 * @return int|void
+	 */
+	public function createNewOriginalFromThisDuplicate($targetParentId, $targetQuestionTitle = '')
+	{
+	    if ($this->id <= 0)
+	    {
+	        // The question has not been saved. It cannot be duplicated
+	        return;
+	    }
+	    
+	    $sourceQuestionId = $this->id;
+	    $sourceParentId = $this->getObjId();
+	    
+	    // make a real clone to keep the object unchanged
+	    $clone = clone $this;
+	    $clone->setId(-1);
+	    
+	    $clone->setObjId($targetParentId);
+	    
+	    if (!empty($targetQuestionTitle))
+	    {
+	        $clone->setTitle($targetQuestionTitle);
+	    }
+	    
+	    $clone->saveToDb();
+	    // copy question page content
+	    $clone->copyPageOfQuestion($sourceQuestionId);
+	    // copy XHTML media objects
+	    $clone->copyXHTMLMediaObjectsOfQuestion($sourceQuestionId);
+	    
+	    $clone->onCopy($sourceParentId, $sourceQuestionId, $clone->getObjId(), $clone->getId());
+	    
+	    return $clone->getId();
+	}
 
 	/**
 	 * Returns the question type of the question
