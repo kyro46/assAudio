@@ -1,8 +1,5 @@
 <?php
 
-include_once "./Modules/TestQuestionPool/classes/class.assQuestionGUI.php";
-include_once "./Modules/Test/classes/inc.AssessmentConstants.php";
-
 /**
  * Audio GUI class for question type plugins
  *
@@ -11,7 +8,7 @@ include_once "./Modules/Test/classes/inc.AssessmentConstants.php";
  * @ingroup ModulesTestQuestionPool
  *
  * @ilctrl_iscalledby assAudioGUI: ilObjQuestionPoolGUI, ilObjTestGUI, ilQuestionEditGUI, ilTestExpressPageObjectGUI
- * @ilCtrl_Calls assAudioGUI: ilFormPropertyDispatchGUI
+ * @ilctrl_calls assAudioGUI: ilFormPropertyDispatchGUI
  */
 class assAudioGUI extends assQuestionGUI
 {
@@ -24,25 +21,28 @@ class assAudioGUI extends assQuestionGUI
 	/**
 	 * @var assAudio	The question object
 	 */
-	var $object = null;
+	public assQuestion $object;
 	
 	/**
-	* Constructor
-	*
-	* @param integer $id The database id of a question object
-	* @access public
-	*/
+	 * Constructor
+	 *
+	 * @param integer $id The database id of a question object
+	 * @access public
+	 */
 	public function __construct($id = -1)
 	{
-		parent::__construct();
-		include_once "./Services/Component/classes/class.ilPlugin.php";
-		$this->plugin = ilPlugin::getPluginObject(IL_COMP_MODULE, "TestQuestionPool", "qst", "assAudio");
-		$this->plugin->includeClass("class.assAudio.php");
-		$this->object = new assAudio();
-		if ($id >= 0)
-		{
-			$this->object->loadFromDb($id);
-		}
+	    global $DIC;
+	    
+	    parent::__construct();
+	    
+	    /** @var ilComponentFactory $component_factory */
+	    $component_factory = $DIC["component.factory"];
+	    $this->plugin = $component_factory->getPlugin('assAudio');
+	    $this->object = new assAudio();
+	    if ($id >= 0)
+	    {
+	        $this->object->loadFromDb($id);
+	    }
 	}
 
 	/**
@@ -53,8 +53,9 @@ class assAudioGUI extends assQuestionGUI
 	 */
 	public function editQuestion($checkonly = FALSE)
 	{
-		global $lng;
-
+	    global $DIC;
+	    $lng = $DIC->language();
+	    
 		$save = $this->isSaveCommand();
 		$this->getQuestionTemplate();
 		$plugin = $this->object->getPlugin();
@@ -104,7 +105,7 @@ class assAudioGUI extends assQuestionGUI
 	 * @param bool $always
 	 * @return integer A positive value, if one of the required fields wasn't set, else 0
 	 */
-	public function writePostData($always = false)
+	protected function writePostData($always = false): int
 	{
 		$hasErrors = (!$always) ? $this->editQuestion(true) : false;
 		if (!$hasErrors)
@@ -128,48 +129,47 @@ class assAudioGUI extends assQuestionGUI
 	 * @param boolean $show_feedback		Show a feedback
 	 * @return string
 	 */
-	public function getTestOutput($active_id, $pass = NULL, $is_postponed = FALSE, $use_post_solutions = FALSE, $show_feedback = FALSE)
-	{
+	public function getTestOutput($active_id, $pass = NULL, $is_postponed = FALSE, $use_post_solutions = FALSE, $show_specific_inline_feedback = FALSE): string
+	{	    
 	    // get the solution of the user for the active pass or from the last pass if allowed
-	    $user_solution = array();
-	    if ($active_id)
+	    if (is_null($pass))
 	    {
-	        include_once "./Modules/Test/classes/class.ilObjTest.php";
-	        if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
-	        {
-	            if (is_null($pass)) $pass = ilObjTest::_getPass($active_id);
-	        }
-	        $user_solution =& $this->object->getSolutionValues($active_id, $pass);
-	        if (!is_array($user_solution))
-	        {
-	            $user_solution = array();
-	        }
-			$template = $this->plugin->getTemplate("tpl.il_as_qpl_Audio_output.html");
-			$template->setVariable("QUESTIONTEXT", $this->object->prepareTextareaOutput( $this->object->getQuestion(), TRUE));
-			$template->setVariable("ID", $this->object->getId());
-				
-			if ($user_solution[0]["value1"])
-			{
-				$path = $this->object->getFileUploadPath($active_id);
-				$content = file_get_contents ($path . $user_solution[0]["value1"]);
-				$template->setVariable("SOLUTION", ilUtil::prepareFormOutput(base64_encode($content)));
-			}
+	        $pass = ilObjTest::_getPass($active_id);
+	    }
+	    
+	    $user_solution = $this->object->getSolutionStored($active_id, $pass, null);
+	    
+	    if (!is_array($user_solution))
+	    {
+	        $user_solution = array();
+	    }
 
-			//language
-			$template->setVariable("RECORD",$this->plugin->txt("record"));
-			$template->setVariable("PAUSE",$this->plugin->txt("pause"));
-			$template->setVariable("RESUME",$this->plugin->txt("resume"));
-			$template->setVariable("FINISH",$this->plugin->txt("finish"));
-			$template->setVariable("OVERRIDEWARN",$this->plugin->txt("overridewarn"));
-			$template->setVariable("CANCEL",$this->plugin->txt("cancel"));
-			$template->setVariable("STARTRECORDING",$this->plugin->txt("startrecording"));
-			$template->setVariable("MSG_RECORDINGSTARTED",$this->plugin->txt("msg_recordingstarted"));
-			$template->setVariable("MSG_CURRENTLYNORECORDING",$this->plugin->txt("msg_currentlynorecording"));
-			$template->setVariable("MSG_EXISTING_DURATION_P1",$this->plugin->txt("msg_existing_duration_p1"));
-			$template->setVariable("MSG_EXISTING_DURATION_P2",$this->plugin->txt("msg_existing_duration_p2"));
-			$template->setVariable("MSG_EXISTING_ALTERNATE",$this->plugin->txt("msg_existing_alternate"));
+		$template = $this->plugin->getTemplate("tpl.il_as_qpl_Audio_output.html");
+		$template->setVariable("QUESTIONTEXT", $this->object->prepareTextareaOutput( $this->object->getQuestion(), TRUE));
+		$template->setVariable("ID", $this->object->getId());
 			
+		if ($user_solution["value1"])
+		{
+			$path = $this->object->getFileUploadPath($active_id);
+			$content = file_get_contents ($path . $user_solution["value1"]);
+			$template->setVariable("SOLUTION", ilLegacyFormElementsUtil::prepareFormOutput(base64_encode($content)));
 		}
+
+		//language
+		$template->setVariable("RECORD",$this->plugin->txt("record"));
+		$template->setVariable("PAUSE",$this->plugin->txt("pause"));
+		$template->setVariable("RESUME",$this->plugin->txt("resume"));
+		$template->setVariable("FINISH",$this->plugin->txt("finish"));
+		$template->setVariable("OVERRIDEWARN",$this->plugin->txt("overridewarn"));
+		$template->setVariable("CANCEL",$this->plugin->txt("cancel"));
+		$template->setVariable("STARTRECORDING",$this->plugin->txt("startrecording"));
+		$template->setVariable("MSG_RECORDINGSTARTED",$this->plugin->txt("msg_recordingstarted"));
+		$template->setVariable("MSG_CURRENTLYNORECORDING",$this->plugin->txt("msg_currentlynorecording"));
+		$template->setVariable("MSG_EXISTING_DURATION_P1",$this->plugin->txt("msg_existing_duration_p1"));
+		$template->setVariable("MSG_EXISTING_DURATION_P2",$this->plugin->txt("msg_existing_duration_p2"));
+		$template->setVariable("MSG_EXISTING_ALTERNATE",$this->plugin->txt("msg_existing_alternate"));
+		
+		
 
 		$questionoutput = $template->get();
 		$pageoutput = $this->outQuestionPage("", $is_postponed, $active_id, $questionoutput);
@@ -222,25 +222,29 @@ class assAudioGUI extends assQuestionGUI
 	 * @param boolean $show_feedback         Show the question feedback
 	 * @param boolean $show_correct_solution Show the correct solution instead of the user solution
 	 * @param boolean $show_manual_scoring   Show specific information for the manual scoring output
-	 * @return The solution output of the question as HTML code
+	 * @param bool    $show_question_text
+	 
+	 * @return string solution output of the question as HTML code
 	 */
 	function getSolutionOutput(
-		$active_id,
-		$pass = NULL,
-		$graphicalOutput = FALSE,
-		$result_output = FALSE,
-		$show_question_only = TRUE,
-		$show_feedback = FALSE,
-		$show_correct_solution = FALSE,
-		$show_manual_scoring = FALSE,
-		$show_question_text = TRUE
-	) {
+	    $active_id,
+	    $pass = NULL,
+	    $graphicalOutput = FALSE,
+	    $result_output = FALSE,
+	    $show_question_only = TRUE,
+	    $show_feedback = FALSE,
+	    $show_correct_solution = FALSE,
+	    $show_manual_scoring = FALSE,
+	    $show_question_text = TRUE
+	    ): string
+	{
         	// get the solution of the user for the active pass or from the last pass if allowed
         	$user_solution = array();
         	if (($active_id > 0) && (!$show_correct_solution))
         	{
         	    // get the solutions of a user
-        	    $user_solution =& $this->object->getSolutionValues($active_id, $pass);
+        	    $user_solution = $this->object->getSolutionStored($active_id, $pass, null);
+        	    
         	    if (!is_array($user_solution))
         	    {
         	        $user_solution = array();
@@ -248,11 +252,11 @@ class assAudioGUI extends assQuestionGUI
         	} else {
         	    $user_solution = array();
         	}
-        	
-        	if ($user_solution[0]["value1"])
+        	        	
+        	if (isset($user_solution["value1"]))
         	{
         		$path = $this->object->getFileUploadPath($active_id);
-        		$content = file_get_contents ($path . $user_solution[0]["value1"]);
+        		$content = file_get_contents ($path . $user_solution["value1"]);
         		$value1 = base64_encode($content);
         	}
         	
@@ -301,110 +305,27 @@ class assAudioGUI extends assQuestionGUI
         	return $solutionoutput;
     }
 
-	/**
-	 * Returns the answer specific feedback for the question
-	 *
-	 * @param array $userSolution solution of the participant
-	 * @return string HTML Code with the answer specific feedback
-	 * @access public
-	 */
-	function getSpecificFeedbackOutput($userSolution)
-	{
-	    // By default no answer specific feedback is defined
-	    $output = "";
-	    return $this->object->prepareTextareaOutput($output, TRUE);
-	}
+    /**
+     * Returns the answer specific feedback for the question
+     *
+     * @param array $userSolution Array with the user solutions
+     * @return string HTML Code with the answer specific feedback
+     * @access public
+     */
+    public function getSpecificFeedbackOutput($userSolution): string
+    {
+        // By default no answer specific feedback is defined
+        $output = '';
+        return $this->object->prepareTextareaOutput($output, TRUE);
+    }
 	
-	/**
-	* Sets the ILIAS tabs for this question type
-	* called from ilObjTestGUI and ilObjQuestionPoolGUI
-	*/
-	public function setQuestionTabs()
-	{
-		global $rbacsystem, $ilTabs;
-		
-		$this->ctrl->setParameterByClass("ilpageobjectgui", "q_id", $_GET["q_id"]);
-		include_once "./Modules/TestQuestionPool/classes/class.assQuestion.php";
-		$q_type = $this->object->getQuestionType();
-
-		if (strlen($q_type))
-		{
-			$classname = $q_type . "GUI";
-			$this->ctrl->setParameterByClass(strtolower($classname), "sel_question_types", $q_type);
-			$this->ctrl->setParameterByClass(strtolower($classname), "q_id", $_GET["q_id"]);
-		}
-
-		if ($_GET["q_id"])
-		{
-			if ($rbacsystem->checkAccess('write', $_GET["ref_id"]))
-			{
-				// edit page
-				$ilTabs->addTarget("edit_page",
-					$this->ctrl->getLinkTargetByClass("ilAssQuestionPageGUI", "edit"),
-					array("edit", "insert", "exec_pg"),
-					"", "", $force_active);
-			}
-	
-			// edit page
-			$ilTabs->addTarget("preview",
-				$this->ctrl->getLinkTargetByClass("ilAssQuestionPageGUI", "preview"),
-				array("preview"),
-				"ilAssQuestionPageGUI", "", $force_active);
-		}
-
-		$force_active = false;
-		if ($rbacsystem->checkAccess('write', $_GET["ref_id"]))
-		{
-			$url = "";
-
-			if ($classname) $url = $this->ctrl->getLinkTargetByClass($classname, "editQuestion");
-			$commands = $_POST["cmd"];
-
-			// edit question properties
-			$ilTabs->addTarget("edit_properties",
-				$url,
-				array("editQuestion", "save", "cancel", "cancelExplorer", "linkChilds", 
-				"parseQuestion", "saveEdit"),
-				$classname, "", $force_active);
-		}
-
-		// add tab for question feedback within common class assQuestionGUI
-		$this->addTab_QuestionFeedback($ilTabs);
-
-		// add tab for question hint within common class assQuestionGUI
-		$this->addTab_QuestionHints($ilTabs);
-
-		if ($_GET["q_id"])
-		{
-			$ilTabs->addTarget("solution_hint",
-				$this->ctrl->getLinkTargetByClass($classname, "suggestedsolution"),
-				array("suggestedsolution", "saveSuggestedSolution", "outSolutionExplorer", "cancel",
-					"addSuggestedSolution","cancelExplorer", "linkChilds", "removeSuggestedSolution"
-				),
-				$classname,
-				""
-			);
-		}
-
-		// Assessment of questions sub menu entry
-		if ($_GET["q_id"])
-		{
-			$ilTabs->addTarget("statistics",
-				$this->ctrl->getLinkTargetByClass($classname, "assessment"),
-				array("assessment"),
-				$classname, "");
-		}
-		
-		if (($_GET["calling_test"] > 0) || ($_GET["test_ref_id"] > 0))
-		{
-			$ref_id = $_GET["calling_test"];
-			if (strlen($ref_id) == 0) $ref_id = $_GET["test_ref_id"];
-			$ilTabs->setBackTarget($this->lng->txt("backtocallingtest"), "ilias.php?baseClass=ilObjTestGUI&cmd=questions&ref_id=$ref_id");
-		}
-		else
-		{
-			$ilTabs->setBackTarget($this->lng->txt("qpl"), $this->ctrl->getLinkTargetByClass("ilobjquestionpoolgui", "questions"));
-		}
-	}
+    /**
+     * Sets the ILIAS tabs for this question type
+     * called from ilObjTestGUI and ilObjQuestionPoolGUI
+     */
+    public function setQuestionTabs(): void
+    {
+        parent::setQuestionTabs();
+    }
 }
 ?>

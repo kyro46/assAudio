@@ -11,19 +11,19 @@ include_once "./Modules/TestQuestionPool/classes/class.ilQuestionsPlugin.php";
 */
 class ilassAudioPlugin extends ilQuestionsPlugin
 {
-		final function getPluginName()
-		{
-			return "assAudio";
-		}
-		
-		final function getQuestionType()
-		{
-			return "assAudio";
-		}
-		
-		final function getQuestionTypeTranslation()
-		{
-			return $this->txt($this->getQuestionType());
-		}
+    final function getPluginName(): string
+    {
+		return "assAudio";
+	}
+	
+	final function getQuestionType()
+	{
+		return "assAudio";
+	}
+	
+	final function getQuestionTypeTranslation(): string
+	{
+		return $this->txt($this->getQuestionType());
+	}
 }
 ?>
