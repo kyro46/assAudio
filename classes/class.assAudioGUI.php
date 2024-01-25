@@ -252,7 +252,8 @@ class assAudioGUI extends assQuestionGUI
         	} else {
         	    $user_solution = array();
         	}
-        	        	
+
+        	$value1 = '';
         	if (isset($user_solution["value1"]))
         	{
         		$path = $this->object->getFileUploadPath($active_id);
