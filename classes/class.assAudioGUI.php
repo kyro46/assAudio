@@ -145,7 +145,7 @@ class assAudioGUI extends assQuestionGUI
 	    }
 
 		$template = $this->plugin->getTemplate("tpl.il_as_qpl_Audio_output.html");
-		$template->setVariable("QUESTIONTEXT", $this->object->prepareTextareaOutput( $this->object->getQuestion(), TRUE));
+		$template->setVariable("QUESTIONTEXT", self::prepareTextareaOutput( $this->object->getQuestion(), TRUE));
 		$template->setVariable("ID", $this->object->getId());
 			
 		if ($user_solution["value1"])
@@ -186,7 +186,7 @@ class assAudioGUI extends assQuestionGUI
 	public function getPreview($show_question_only = FALSE, $showInlineFeedback = false)
 	{
 		$template = $this->plugin->getTemplate("tpl.il_as_qpl_Audio_output.html");
-		$template->setVariable("QUESTIONTEXT", $this->object->prepareTextareaOutput( $this->object->getQuestion(), TRUE));
+		$template->setVariable("QUESTIONTEXT", self::prepareTextareaOutput( $this->object->getQuestion(), TRUE));
 		$template->setVariable("ID", $this->object->getId());
 	
 		//language
@@ -275,7 +275,7 @@ class assAudioGUI extends assQuestionGUI
         	    // hier nur die Musterlösung anzeigen, da wir uns im test beim drücken von check befinden ;)
         	}
 
-        	$solutiontemplate->setVariable("QUESTIONTEXT", $this->object->prepareTextareaOutput( $this->object->getQuestion(), TRUE));
+        	$solutiontemplate->setVariable("QUESTIONTEXT", self::prepareTextareaOutput( $this->object->getQuestion(), TRUE));
         	$solutiontemplate->setVariable("RESULT_OUTPUT", $value1);
         	$questionoutput = $solutiontemplate->get();
         	
@@ -317,7 +317,7 @@ class assAudioGUI extends assQuestionGUI
     {
         // By default no answer specific feedback is defined
         $output = '';
-        return $this->object->prepareTextareaOutput($output, TRUE);
+        return self::prepareTextareaOutput($output, TRUE);
     }
 	
     /**

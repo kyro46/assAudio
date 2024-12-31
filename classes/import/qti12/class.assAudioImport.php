@@ -99,7 +99,7 @@ class assAudioImport extends assQuestionImport
 		$this->object->setComment($item->getComment());
 		$this->object->setAuthor($item->getAuthor());
 		$this->object->setOwner($ilUser->getId());
-		$this->object->setQuestion($this->object->QTIMaterialToString($item->getQuestiontext()));
+		$this->object->setQuestion($this->QTIMaterialToString($item->getQuestiontext()));
 		$this->object->setObjId($questionpool_id);
 		//$this->object->setEstimatedWorkingTime($duration["h"], $duration["m"], $duration["s"]);
 		$this->object->setPoints($item->getMetadataEntry("POINTS"));
@@ -115,7 +115,7 @@ class assAudioImport extends assQuestionImport
 		// convert the generic feedback
 		foreach ($feedbacksgeneric as $correctness => $material)
 		{
-			$m = $this->object->QTIMaterialToString($material);
+			$m = $this->QTIMaterialToString($material);
 			$feedbacksgeneric[$correctness] = $m;
 		}
 

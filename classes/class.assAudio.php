@@ -170,7 +170,6 @@ class assAudio extends assQuestion
             $this->setAuthor($data['author']);
             $this->setPoints($data['points']);
             $this->setComment((string) $data['description']);
-            //$this->setSuggestedSolution((string) $data["solution_hint"]);
          
             $this->setQuestion(ilRTE::_replaceMediaObjectImageSrc((string) $data['question_text'], 1));
             try {
@@ -206,13 +205,13 @@ class assAudio extends assQuestion
         if ($this->getId() <= 0)
         {
             // The question has not been saved. It cannot be duplicated
-            return 0;
+            return -1;
         }
         
         // make a real clone to keep the object unchanged
         $clone = clone $this;
         
-        $original_id = assQuestion::_getOriginalId($this->getId());
+        $original_id = $this->questioninfo->getOriginalId($this->id);
         $clone->setId(-1);
         
         if( (int) $testObjId > 0 )
@@ -438,7 +437,7 @@ class assAudio extends assQuestion
      *
      * @throws ilTestException
      */
-    public function calculateReachedPoints($active_id, $pass = NULL, $authorizedSolution = true, $returndetails = false)
+    public function calculateReachedPoints($active_id, $pass = NULL, $authorizedSolution = true, $returndetails = false) :array|float
     {
         return 0;
     }
@@ -537,7 +536,18 @@ class assAudio extends assQuestion
 	{
 	    // normally nothing needs to be reworked
 	}
-
+	
+	/**
+	 * Returns the name of the answer table in the database
+	 *
+	 * @return string The answer table name
+	 * @access public
+	 */
+	public function getAnswerTableName(): string
+	{
+	    return "";
+	}
+	
 	/**
 	 * Creates an Excel worksheet for the detailed cumulated results of this question
 	 *
@@ -559,7 +569,7 @@ class assAudio extends assQuestion
 	 */
 	public function getFileUploadPath($active_id, $question_id = null)
 	{
-		$test_id = $this->lookupTestId($active_id);
+	    $test_id = $this->testParticipantInfo->lookupTestIdByActiveId($active_id);
 		if (is_null($question_id)) $question_id = $this->getId();
 		return CLIENT_WEB_DIR . "/assessment/tst_$test_id/$active_id/$question_id/files/";
 	}

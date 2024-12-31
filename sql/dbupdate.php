@@ -24,3 +24,10 @@ if ($res->numRows() == 0)
     );
 }
 ?>
+<#2>
+<?php
+if($ilDB->tableColumnExists('qpl_qst_type', 'plugin_name'))
+{
+    $ilDB->manipulate("UPDATE qpl_qst_type set plugin_name = type_tag WHERE type_tag ='assAudio'");
+}
+?>
