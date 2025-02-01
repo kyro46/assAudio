@@ -72,6 +72,17 @@ function convertDataURIToBinary(dataURI) {
 	  return array;
 	}
 
+// No additional confirmation if no previous recording exist
+document.getElementById("confirm_{ID}").addEventListener("click", function(){
+    var mediaElement = document.getElementById("media_{ID}");
+    
+    if (mediaElement.src && mediaElement.src !== "") {
+        document.getElementById("confirmation_{ID}").style.display = "block";
+    } else {
+        onBtnRecordClicked_{ID}();
+    }
+});
+
 $(document).ready(function(){
 	var previousSolution = 'data:audio/webm;base64,' + document.getElementById('question_{ID}').value;
 	var previousSolutionOutput = document.getElementById('media_{ID}');
