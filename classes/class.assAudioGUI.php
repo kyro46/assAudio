@@ -289,10 +289,10 @@ class assAudioGUI extends assQuestionGUI
         	}
         	
         	// add the feedback
-        	$feedback = ($show_feedback) ? $this->getAnswerFeedbackOutput($active_id, $pass) : "";
+        	$feedback = ($show_feedback) ? $this->getGenericFeedbackOutput($active_id, $pass) : "";
         	if (strlen($feedback))
         	{
-        	    $solutiontemplate->setVariable("FEEDBACK", $feedback);
+        	    $solutiontemplate->setVariable("FEEDBACK", self::prepareTextareaOutput($feedback, true));
         	}
         	        	
         	$solutionoutput = $solutiontemplate->get();
