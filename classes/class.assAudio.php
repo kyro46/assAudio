@@ -272,7 +272,7 @@ class assAudio extends assQuestion
         // make a real clone to keep the object unchanged
         $clone = clone $this;
         
-        $original_id = assQuestion::_getOriginalId($this->getId());
+        $original_id = $this->questioninfo->getOriginalId($this->id);
         $source_questionpool_id = $this->getObjId();
         $clone->setId(-1);
         $clone->setObjId($target_questionpool_id);
