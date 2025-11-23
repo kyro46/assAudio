@@ -1,6 +1,7 @@
 // German Language File for assAudio Plugin
 <!-- language file start -->
 assAudio#:#Tonaufzeichnung
+edit_assAudio#:#Tonaufzeichnungsfrage editieren
 points#:#Punkte
 bestSolutionNa#:#Nicht verfügbar für diesen Fragetyp.
 record#:#Aufzeichnen

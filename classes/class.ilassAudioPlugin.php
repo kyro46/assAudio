@@ -1,29 +1,27 @@
 <?php
-
-include_once "./Modules/TestQuestionPool/classes/class.ilQuestionsPlugin.php";
 	
 /**
 * Question plugin Audio
 *
-* @author Christoph Jobst <christoph.jobst@llz.uni-halle.de>
+* @author Christoph Jobst <iliasplugins.christoph.jobst@outlook.de>
 * @version $Id$
 * @ingroup ModulesTestQuestionPool
 */
 class ilassAudioPlugin extends ilQuestionsPlugin
 {
-    final function getPluginName(): string
-    {
-		return "assAudio";
+	final function getPluginName(): string
+	{
+	    return "assAudio";
 	}
 	
-	final function getQuestionType()
+	final function getQuestionType(): string
 	{
-		return "assAudio";
+	    return "assAudio";
 	}
 	
 	final function getQuestionTypeTranslation(): string
 	{
-		return $this->txt($this->getQuestionType());
+	    return $this->txt($this->getQuestionType());
 	}
 }
 ?>

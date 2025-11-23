@@ -3,18 +3,35 @@
 /**
  * Audio class for question type plugins
  *
- * @author	Christoph Jobst <christoph.jobst@llz.uni-halle.de>
+ * @author	Christoph Jobst <iliasplugins.christoph.jobst@outlook.de>
  * @version	$Id:  $
  * @ingroup ModulesTestQuestionPool
  */
-class assAudio extends assQuestion
+
+use ILIAS\Test\Logging\AdditionalInformationGenerator;
+use ILIAS\Test\Participants\ParticipantRepository;
+use ILIAS\TestQuestionPool\QuestionPoolDIC;
+use ILIAS\TestQuestionPool\Questions\QuestionAutosaveable;
+
+class assAudio extends assQuestion implements ilObjQuestionScoringAdjustable, QuestionAutosaveable
 {
 	/**
 	 * @var ilassAudioPlugin	The plugin object
 	 */
-    protected $plugin = null;
+    private ilPlugin $plugin;
     
-
+    private ParticipantRepository $participant_repository;
+    
+    public function getPlugin(): ilPlugin
+    {
+        return $this->plugin;
+    }
+    
+    public function setPlugin(ilPlugin $plugin): void
+    {
+        $this->plugin = $plugin;
+    }
+    
     /**
      * Constructor
      *
@@ -37,10 +54,40 @@ class assAudio extends assQuestion
         $question = ""
         )
     {
+        parent::__construct($title, $comment, $author, $owner, $question);
+        
+        try {
+            global $DIC;
+            
+            /** @var ilComponentRepository $component_repository */
+            $component_repository = $DIC["component.repository"];
+            
+            $info = null;
+            $plugin_name = 'assAudio';
+            $info = $component_repository->getPluginByName($plugin_name);
+            
+            /** @var ilComponentFactory $component_factory */
+            $component_factory = $DIC["component.factory"];
+            
+            /** @var ilQuestionsPlugin $plugin_obj */
+            $plugin_obj = $component_factory->getPlugin($info->getId());
+            
+            if (!is_null($info) && $info->isActive()) {
+                $this->setPlugin($plugin_obj);
+            } else {
+                throw new ilPluginException($plugin_name . ' plugin is not active');
+            }
+        } catch (ilPluginException $e) {
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
+        }
+        
         // needed for excel export
         $this->getPlugin()->loadLanguageModule();
         
-        parent::__construct($title, $comment, $author, $owner, $question);
+        $local_dic = QuestionPoolDIC::dic();
+        $this->participant_repository = $local_dic['participant_repository'];
+        
     }
     
     /**
@@ -61,7 +108,7 @@ class assAudio extends assQuestion
      *
      * @return mixed 	the name(s) of the additional tables (array or string)
      */
-    public function getAdditionalTableName()
+    public function getAdditionalTableName(): string
     {
         return '';
     }
@@ -78,24 +125,6 @@ class assAudio extends assQuestion
         // ..
         
         return (string) $text;
-    }
-    
-    /**
-     * Get the plugin object
-     *
-     * @return object The plugin object
-     */
-    public function getPlugin()
-    {
-        global $DIC;
-        
-        if ($this->plugin == null)
-        {
-            /** @var ilComponentFactory $component_factory */
-            $component_factory = $DIC["component.factory"];
-            $this->plugin = $component_factory->getPlugin('assAudio');
-        }
-        return $this->plugin;
     }
 
     /**
@@ -200,140 +229,50 @@ class assAudio extends assQuestion
      *
      * @access public
      */
-    function duplicate($for_test = true, $title = "", $author = "", $owner = "", $testObjId = null) : int
-    {
-        if ($this->getId() <= 0)
-        {
-            // The question has not been saved. It cannot be duplicated
-            return -1;
-        }
-        
-        // make a real clone to keep the object unchanged
-        $clone = clone $this;
-        
-        $original_id = $this->questioninfo->getOriginalId($this->id);
-        $clone->setId(-1);
-        
-        if( (int) $testObjId > 0 )
-        {
-            $clone->setObjId($testObjId);
-        }
-        
-        if (!empty($title))
-        {
-            $clone->setTitle($title);
-        }
-        if (!empty($author))
-        {
-            $clone->setAuthor($author);
-        }
-        if (!empty($owner))
-        {
-            $clone->setOwner($owner);
-        }
-        
-        if ($for_test)
-        {
-            $clone->saveToDb($original_id);
-        }
-        else
-        {
-            $clone->saveToDb();
-        }
-        
-        // copy question page content
-        $clone->copyPageOfQuestion($this->getId());
-        // copy XHTML media objects
-        $clone->copyXHTMLMediaObjectsOfQuestion($this->getId());
-        
-        // call the event handler for duplication
-        $clone->onDuplicate($this->getObjId(), $this->getId(), $clone->getObjId(), $clone->getId());
-        
-        return $clone->getId();
+    public function duplicate(
+        bool $for_test = true,
+        string $title = '',
+        string $author = '',
+        int $owner = -1,
+        $test_obj_id = null
+        ): int {
+            if ($this->id <= 0) {
+                // The question has not been saved. It cannot be duplicated
+                return -1;
+            }
+            
+            $clone = clone $this;
+            $clone->id = -1;
+            
+            if ((int) $test_obj_id > 0) {
+                $clone->setObjId($test_obj_id);
+            }
+            
+            if ($title) {
+                $clone->setTitle($title);
+            }
+            if ($author) {
+                $clone->setAuthor($author);
+            }
+            if ($owner) {
+                $clone->setOwner($owner);
+            }
+            if ($for_test) {
+                $clone->saveToDb($this->id);
+            } else {
+                $clone->saveToDb();
+            }
+            
+            $clone->clonePageOfQuestion($this->getId());
+            $clone->cloneXHTMLMediaObjectsOfQuestion($this->getId());
+            
+            $clone = $this->cloneQuestionTypeSpecificProperties($clone);
+            
+            $clone->onDuplicate($this->getObjId(), $this->getId(), $clone->getObjId(), $clone->getId());
+            
+            return $clone->id;
     }
-    
-    /**
-     * Copies a question
-     * This is used when a question is copied on a question pool
-     *
-     * @param integer	$target_questionpool_id
-     * @param string	$title
-     *
-     * @return void|integer Id of the clone or nothing.
-     */
-    function copyObject($target_questionpool_id, $title = '')
-    {
-        if ($this->getId() <= 0)
-        {
-            // The question has not been saved. It cannot be duplicated
-            return;
-        }
-        
-        // make a real clone to keep the object unchanged
-        $clone = clone $this;
-        
-        $original_id = $this->questioninfo->getOriginalId($this->id);
-        $source_questionpool_id = $this->getObjId();
-        $clone->setId(-1);
-        $clone->setObjId($target_questionpool_id);
-        if (!empty($title))
-        {
-            $clone->setTitle($title);
-        }
-        
-        // save the clone data
-        $clone->saveToDb();
-        
-        // copy question page content
-        $clone->copyPageOfQuestion($original_id);
-        // copy XHTML media objects
-        $clone->copyXHTMLMediaObjectsOfQuestion($original_id);
-        
-        // call the event handler for copy
-        $clone->onCopy($source_questionpool_id, $original_id, $clone->getObjId(), $clone->getId());
-        
-        return $clone->getId();
-    }
-    
-    /**
-     * Create a new original question in a question pool for a test question
-     * @param int $targetParentId			id of the target question pool
-     * @param string $targetQuestionTitle
-     * @return int|void
-     */
-    public function createNewOriginalFromThisDuplicate($targetParentId, $targetQuestionTitle = '')
-    {
-        if ($this->id <= 0)
-        {
-            // The question has not been saved. It cannot be duplicated
-            return;
-        }
-        
-        $sourceQuestionId = $this->id;
-        $sourceParentId = $this->getObjId();
-        
-        // make a real clone to keep the object unchanged
-        $clone = clone $this;
-        $clone->setId(-1);
-        
-        $clone->setObjId($targetParentId);
-        
-        if (!empty($targetQuestionTitle))
-        {
-            $clone->setTitle($targetQuestionTitle);
-        }
-        
-        $clone->saveToDb();
-        // copy question page content
-        $clone->copyPageOfQuestion($sourceQuestionId);
-        // copy XHTML media objects
-        $clone->copyXHTMLMediaObjectsOfQuestion($sourceQuestionId);
-        
-        $clone->onCopy($sourceParentId, $sourceQuestionId, $clone->getObjId(), $clone->getId());
-        
-        return $clone->getId();
-    }
-    
+ 
     /**
      * Synchronize a question with its original
      * You need to extend this function if a question has additional data that needs to be synchronized
@@ -437,7 +376,7 @@ class assAudio extends assQuestion
      *
      * @throws ilTestException
      */
-    public function calculateReachedPoints($active_id, $pass = NULL, $authorizedSolution = true, $returndetails = false) :array|float
+    public function calculateReachedPoints(int $active_id, ?int $pass = null, bool $authorized_solution = true): float
     {
         return 0;
     }
@@ -452,77 +391,36 @@ class assAudio extends assQuestion
      *
      * @return boolean $status
      */
-    function saveWorkingData($active_id, $pass = NULL, $authorized = true): bool
-    {		
-        global $ilDB;
-        
-        if (is_null($pass))
-        {
-            $pass = ilObjTest::_getPass($active_id);
-        }
-
-		$affectedRows = $ilDB->manipulateF("DELETE FROM tst_solutions WHERE active_fi = %s AND question_fi = %s AND pass = %s",
-			array(
-				"integer", 
-				"integer",
-				"integer"
-			),
-			array(
-				$active_id,
-				$this->getId(),
-				$pass
-			)
-		);
-		
-		// save the answers of the learner to tst_solution table
-		// this data is question type specific
-		// it is used used by calculateReachedPoints() in this class
-
-		$solution = $this->getSolutionSubmit();
-		
-		$path = $this->getFileUploadPath($active_id);
-		$filename = "recording_" . $active_id . "_" . $pass . "_" . time() . '.webm';
-
-		if (!@file_exists($this->getFileUploadPath($active_id)))
-		ilFileUtils::makeDirParents($this->getFileUploadPath($active_id));
-		file_put_contents($path . $filename, base64_decode($solution["value1"]));
-		
-		$next_id      = $ilDB->nextId('tst_solutions');
-		$affectedRows = $ilDB->insert("tst_solutions", array(
-			"solution_id" => array("integer", $next_id),
-			"active_fi"   => array("integer", $active_id),
-			"question_fi" => array("integer", $this->getId()),
-			"value1" => array("clob", $filename),
-			"pass"        => array("integer", $pass),
-			"tstamp"      => array("integer", time()),
-		));
-
-		// Check if the user has entered something
-		// Then set entered_values accordingly
-		$entered_values = FALSE;
-		
-		if (!empty($_POST["question".$this->getId()."audio"]))
-		{
-			$entered_values = TRUE;
-			
-		}
-
-		// Log whether the user entered values
-		if (ilObjAssessmentFolder::_enabledAssessmentLogging())
-		{
-		    assQuestion::logAction($this->lng->txtlng(
-		        'assessment',
-		        $entered_values ? 'log_user_entered_values' : 'log_user_not_entered_values',
-		        ilObjAssessmentFolder::_getLogLanguage()
-		        ),
-		        $active_id,
-		        $this->getId()
-		        );
-		}
-		
-		// submitted solution is valid
-		return true;
-	}
+    public function saveWorkingData(
+        int $active_id,
+        ?int $pass = null,
+        bool $authorized = true
+        ): bool {
+            if ($pass === null) {
+                $pass = ilObjTest::_getPass($active_id);
+            }
+            
+            $answer = $this->getSolutionSubmit();
+            $path = $this->getFileUploadPath($active_id);
+            $filename = "recording_" . $active_id . "_" . $pass . "_" . time() . '.webm';
+            
+            if (!@file_exists($this->getFileUploadPath($active_id)))
+                ilFileUtils::makeDirParents($this->getFileUploadPath($active_id));
+                file_put_contents($path . $filename, base64_decode($answer["value1"]));
+                
+            
+            $this->getProcessLocker()->executeUserSolutionUpdateLockOperation(
+                function () use ($filename, $active_id, $pass, $authorized) {
+                    $this->removeCurrentSolution($active_id, $pass, $authorized);
+                    
+                    if ($filename !== '') {
+                        $this->saveCurrentSolution($active_id, $pass, $filename, null, $authorized);
+                    }
+                }
+                );
+            
+            return true;
+    }
 
 
 	/**
@@ -540,10 +438,10 @@ class assAudio extends assQuestion
 	/**
 	 * Returns the name of the answer table in the database
 	 *
-	 * @return string The answer table name
+	 * @return array|string The answer table name
 	 * @access public
 	 */
-	public function getAnswerTableName(): string
+	function getAnswerTableName() : array|string
 	{
 	    return "";
 	}
@@ -558,20 +456,73 @@ class assAudio extends assQuestion
 	 *
 	 * @return int
 	 */
-	public function setExportDetailsXLS(ilAssExcelFormatHelper $worksheet, int $startrow, int $active_id, int $pass): int
+	public function setExportDetailsXLSX(ilAssExcelFormatHelper $worksheet, int $startrow, int $col, int $active_id, int $pass) : int
 	{
-		parent::setExportDetailsXLS($worksheet, $startrow, $active_id, $pass);
-		return $startrow + 1;
+	    parent::setExportDetailsXLSX($worksheet, $startrow, $col, $active_id, $pass);
+	    return $startrow + 1;
 	}
 
+	// Generic log
+	public function toLog(AdditionalInformationGenerator $additional_info) : array
+	{
+	    return [
+	        AdditionalInformationGenerator::KEY_QUESTION_TYPE => (string) $this->getQuestionType(),
+	        AdditionalInformationGenerator::KEY_QUESTION_TITLE => $this->getTitleForHTMLOutput(),
+	        AdditionalInformationGenerator::KEY_QUESTION_TEXT => $this->formatSAQuestion($this->getQuestion()),
+	        AdditionalInformationGenerator::KEY_QUESTION_REACHABLE_POINTS => $this->getPoints(),
+	        AdditionalInformationGenerator::KEY_FEEDBACK => [
+	            AdditionalInformationGenerator::KEY_QUESTION_FEEDBACK_ON_INCOMPLETE => $this->formatSAQuestion($this->feedbackOBJ->getGenericFeedbackTestPresentation($this->getId(), false)),
+	            AdditionalInformationGenerator::KEY_QUESTION_FEEDBACK_ON_COMPLETE => $this->formatSAQuestion($this->feedbackOBJ->getGenericFeedbackTestPresentation($this->getId(), true))
+	        ]
+	    ];
+	}
+	
+	// FilePath as log entry
+	protected function solutionValuesToLog(
+	    AdditionalInformationGenerator $additional_info,
+	    array $solution_values
+	    ): string {
+	        if (!array_key_exists(0, $solution_values)
+	            || !array_key_exists('value1', $solution_values[0])) {
+	                return '';
+	            }
+	            return $this->refinery->string()->stripTags()->transform(
+	                html_entity_decode($solution_values[0]['value1'])
+	                );
+	}
+	
+	// FilePath as log entry
+	public function solutionValuesToText(array $solution_values) : string
+	{
+	    if (!array_key_exists(0, $solution_values)
+	        || !array_key_exists('value1', $solution_values[0])) {
+	            return '';
+	        }
+	        return $solution_values[0]['value1'];
+	}
+	
 	/**
-	 * Returns the filesystem path for file uploads
+	 * Returns the filesystem path for file uploads for the current test, user, pass and question
+	 * 
+	 * Path results in e.g. /var/www/ILIAS/public/data/myilias/assessment/tst_4/5/19/files/recording_5_0_1735915846.webm
+	 * The filename consists of active_id + pass (starting with 0 for the first pass) + timestamp
 	 */
 	public function getFileUploadPath($active_id, $question_id = null)
 	{
-	    $test_id = $this->testParticipantInfo->lookupTestIdByActiveId($active_id);
+	    $test_id = $this->participant_repository->lookupTestIdByActiveId($active_id);
 		if (is_null($question_id)) $question_id = $this->getId();
 		return CLIENT_WEB_DIR . "/assessment/tst_$test_id/$active_id/$question_id/files/";
+	}
+	
+	/**
+	 * Saves a record to the question types additional data table.
+	 *
+	 * @return mixed
+	 */
+	public function saveAdditionalQuestionDataToDb()
+	{
+	    // nothing to save for Audio
+	    return 0;
 	}
 }
 ?>

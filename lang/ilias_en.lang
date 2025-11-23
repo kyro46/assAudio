@@ -1,6 +1,7 @@
 // English Language File for assAudio Plugin
 <!-- language file start -->
 assAudio#:#Audiorecorder
+edit_assAudio#:#Edit audio recording question
 points#:#Points
 bestSolutionNa#:#Not available for this question type.
 record#:#Record

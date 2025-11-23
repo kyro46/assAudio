@@ -1,5 +1,5 @@
 # assAudio
-Audiorecorder-Questiontypeplugin for ILIAS 9 (for 5.2.x to 8 see branches and releases)
+Audiorecorder-Questiontypeplugin for ILIAS 10 (for 5.2.x to 9 see branches and releases)
 
 ### Questiontype to record audio without a Java-Applet or Adobe Flash ###
 
@@ -28,8 +28,8 @@ Important for admins:
 Install the plugin:
 
 ```bash
-mkdir -p Customizing/global/plugins/Modules/TestQuestionPool/Questions  
-cd Customizing/global/plugins/Modules/TestQuestionPool/Questions
+mkdir -p public/Customizing/global/plugins/Modules/TestQuestionPool/Questions  
+cd public/Customizing/global/plugins/Modules/TestQuestionPool/Questions
 git clone https://github.com/kyro46/assAudio.git
 ```
 
@@ -43,6 +43,10 @@ php setup/setup.php update
 Activate the plugin in the ILIAS-Admin-GUI and activate manual correction.
 
 ### Known Problems ###
+
+* Scoring by Question not yet possible, only Scoring by Participant.
+
+* Export and Import of WEBM-Files not yet possible, Tests with results can't be transferred.
 
 * Audio capture not yet possible with Safe Exam Browser 3.x
 
