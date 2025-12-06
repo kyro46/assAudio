@@ -22,6 +22,7 @@ Important for admins:
   * First minute: every 5 seconds
   * Minute 1-5: every 10 seconds
   * After 5 minutes: every 20 seconds
+* Current browsers restrict the recorder feature to secure contexts (HTTPS) only.
 
 ### Usage ###
 
@@ -40,23 +41,15 @@ composer install --no-dev
 php setup/setup.php update
 ```
 
-Activate the plugin in the ILIAS-Admin-GUI and activate manual correction.
+Activate the plugin in the ILIAS-Admin-GUI.
 
 ### Known Problems ###
-
-* Scoring by Question not yet possible, only Scoring by Participant.
-
 * Export and Import of WEBM-Files not yet possible, Tests with results can't be transferred.
-
 * Audio capture not yet possible with Safe Exam Browser 3.x
-
 * The plugin uses a flash-free approach which is not yet compatible with all browsers as the technology is currently work-in-progress at W3C. See:
   * https://www.w3.org/TR/mediastream-recording/
   * https://caniuse.com/#feat=mediarecorder
-  
 * Textual feedback about the length of a recording is only provided in Firefox
-
-* Current browsers restrict the recorder feature to secure contexts (HTTPS) only.
 
 ### Credits ###
 * Development by Christoph Jobst
