@@ -23,7 +23,7 @@ class assAudioGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjustab
 	public assQuestion $object;
 	
 	/**
-	 * @return ilassStackQuestionPlugin
+	 * @return assAudio
 	 */
 	public function getPlugin(): ilPlugin
 	{
@@ -31,7 +31,7 @@ class assAudioGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjustab
 	}
 	
 	/**
-	 * @param ilassStackQuestionPlugin $plugin
+	 * @param assAudio $plugin
 	 */
 	public function setPlugin(ilPlugin $plugin): void
 	{
@@ -270,7 +270,7 @@ class assAudioGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjustab
 	 * @param bool    $show_inline_feedback
 	 * @return string solution output of the question as HTML code
 	 */
-	function getSolutionOutput(
+	public function getSolutionOutput(
 	    int $active_id,
 	    ?int $pass = null,
 	    bool $graphical_output = false,
@@ -281,76 +281,117 @@ class assAudioGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjustab
 	    bool $show_manual_scoring = false,
 	    bool $show_question_text = true,
 	    bool $show_inline_feedback = true
-	    ): string
+	    ): string 
 	{
-        	// get the solution of the user for the active pass or from the last pass if allowed
-        	$user_solution = array();
-        	if (($active_id > 0) && (!$show_correct_solution))
-        	{
-        	    // get the solutions of a user
-        	    $user_solution = $this->object->getSolutionStored($active_id, $pass, null);
-        	    
-        	    if (!is_array($user_solution))
-        	    {
-        	        $user_solution = array();
-        	    }
-        	} else {
-        	    $user_solution = array();
-        	}
-
-        	$value1 = '';
-        	if (isset($user_solution["value1"]))
-        	{
-        		$path = $this->object->getFileUploadPath($active_id);
-        		$content = file_get_contents ($path . $user_solution["value1"]);
-        		$value1 = base64_encode($content);
-        	}
-        	
-        	// generate the question output
-        	$plugin       = $this->object->getPlugin();
-        	$solutiontemplate = new ilTemplate("tpl.il_as_qpl_Audio_solution.html", true, true, 'public/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assAudio');
-        	$solutiontemplate->setVariable("ID", $this->object->getId());
-        	
-        	if ($show_correct_solution)
-        	{
-        	    //TODO Not yet conceptualized.
-        	    //$solutiontemplate->setVariable("FALLBACK", 'Sample solution not supported at the moment.');
-        	    
-        	    return $solutiontemplate->get();
-        	    // hier nur die Musterlösung anzeigen, da wir uns im test beim drücken von check befinden ;)
-        	}
-
-        	$solutiontemplate->setVariable("QUESTIONTEXT", self::prepareTextareaOutput( $this->object->getQuestion(), TRUE));
-        	$solutiontemplate->setVariable("RESULT_OUTPUT", $value1);
-        	$questionoutput = $solutiontemplate->get();
-        	
-        	if ($show_manual_scoring)
-        	{
-        	    $scoringtemplate = new ilTemplate("tpl.il_as_qpl_Audio_solution.html", true, true, 'public/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assAudio');
-        	    
-        	    $scoringtemplate->setVariable("ID", $this->object->getId());
-        	    $solutiontemplate->setVariable("FALLBACK", 'Sample solution not supported at the moment.');
-        	    
-        	    $questionoutput .= "<br>" . $scoringtemplate->get();
-        	}
-        	
-        	// add the feedback
-        	$feedback = ($show_feedback) ? $this->getGenericFeedbackOutput($active_id, $pass) : "";
-        	if (strlen($feedback))
-        	{
-        	    $solutiontemplate->setVariable("FEEDBACK", self::prepareTextareaOutput($feedback, true));
-        	}
-        	        	
-        	$solutionoutput = $solutiontemplate->get();
-        	
-        	if (!$show_question_only)
-        	{
-        	    // get page object output
-        	    $solutionoutput = $this->getILIASPage($solutionoutput);
-        	}
-        	
-        	return $solutionoutput;
-    }
+        if (($active_id > 0) && (!$show_correct_solution))
+        {
+            // get the solutions of a user
+            $solution = $this->object->getSolutionStored($active_id, $pass, null);
+            
+            if (!is_array($solution))
+            {
+                $solution = array();
+            }
+        } else {
+            $solution = array();
+        }
+        
+        return $this->renderSolutionOutput(
+            $solution,
+            $active_id,
+            $pass,
+            $graphical_output,
+            $result_output,
+            $show_question_only,
+            $show_feedback,
+            $show_correct_solution,
+            $show_manual_scoring,
+            $show_question_text,
+            false, // $show_autosave_title
+            false, // $show_inline_feedback
+        );
+	}
+	
+	public function renderSolutionOutput(
+	    mixed $user_solutions,
+	    int $active_id,
+	    ?int $pass,
+	    bool $graphical_output = false,
+	    bool $result_output = false,
+	    bool $show_question_only = true,
+	    bool $show_feedback = false,
+	    bool $show_correct_solution = false,
+	    bool $show_manual_scoring = false,
+	    bool $show_question_text = true,
+	    bool $show_autosave_title = false,
+	    bool $show_inline_feedback = false,
+	    ): ?string
+    {
+        
+        if ($show_manual_scoring)
+        {
+            // Use the direct link to the file on the server for manual correction since scoring by question won't easily execute JS
+            $solutiontemplate = new ilTemplate("tpl.il_as_qpl_Audio_solution_directlink.html", true, true, 'public/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assAudio');
+        } else {
+            // Use the binary blob-URL for participants so they won't see the direct link to the server
+            $solutiontemplate = new ilTemplate("tpl.il_as_qpl_Audio_solution.html", true, true, 'public/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assAudio');
+        }
+        
+        $solution = '';
+        $resultpath = '';
+        if (isset($user_solutions["value1"]))
+        {
+            $path = $this->object->getFileUploadPath($active_id);
+            $content = file_get_contents ($path . $user_solutions["value1"]);
+            $resultpath = $this->object->getFilePathWeb($active_id) . $user_solutions["value1"];
+            $solution = base64_encode($content);
+        }
+        
+        $solutiontemplate->setVariable("ID", $this->object->getId());
+        $solutiontemplate->setVariable("RESULT_OUTPUT", $solution);
+        
+        if ($show_manual_scoring)
+        {
+           $solutiontemplate->setVariable("RESULT_PATH", $resultpath);
+        }
+        
+        if ($show_question_text == true) 
+        {
+            $solutiontemplate->setVariable("QUESTIONTEXT", self::prepareTextareaOutput( $this->object->getQuestion(), TRUE));
+        }
+        
+        // Sample solution by upload or manual recording is currently not supported
+        if ($show_correct_solution == true) 
+        {
+            $solutiontemplate->setVariable("FALLBACK", $this->plugin->txt("no_sample_solution_support"));
+        }
+        
+        $feedback = '';
+        if ($show_feedback) {
+            if (!$this->isTestPresentationContext()) 
+            {
+                $fb = $this->getGenericFeedbackOutput((int) $active_id, $pass);
+                $feedback .= strlen($fb) ? $fb : '';
+            }
+        }
+        
+        if (strlen($feedback)) {
+            $cssClass = (
+                $this->hasCorrectSolution($active_id, $pass) ?
+                ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_CORRECT : ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_WRONG
+                );
+            
+            $solutiontemplate->setVariable("ILC_FB_CSS_CLASS", $cssClass);
+            $solutiontemplate->setVariable("FEEDBACK", ilLegacyFormElementsUtil::prepareTextareaOutput($feedback, true));
+        }
+        	        
+        $solutionoutput = $solutiontemplate->get();
+        if (!$show_question_only) {
+            // get page object output
+            $solutionoutput = $this->getILIASPage($solutionoutput);
+        }
+        return $solutionoutput;
+	}
 
     /**
      * Returns the answer specific feedback for the question

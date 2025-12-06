@@ -515,6 +515,24 @@ class assAudio extends assQuestion implements ilObjQuestionScoringAdjustable, Qu
 	}
 	
 	/**
+	 * Returns the web path for web accessable files of a question.
+	 * The audio path is under the web accessable data dir in assessment/tst_REFERENCE_ID_OF_TEST/ID_OF_PARTICIPANT/ID_OF_QUESTION/files
+	 */
+	public function getFilePathWeb($active_id, $question_id = null): string
+	{
+	    $test_id = $this->participant_repository->lookupTestIdByActiveId($active_id);
+	    if (is_null($question_id)) $question_id = $this->getId();
+	    
+        $webdir = ilFileUtils::removeTrailingPathSeparators(CLIENT_WEB_DIR)
+        . "/assessment/tst_$test_id/$active_id/$question_id/files/";
+        return str_replace(
+            ilFileUtils::removeTrailingPathSeparators(ILIAS_ABSOLUTE_PATH . '/public'),
+            ilFileUtils::removeTrailingPathSeparators(ILIAS_HTTP_PATH),
+            $webdir
+            );
+	}
+	
+	/**
 	 * Saves a record to the question types additional data table.
 	 *
 	 * @return mixed

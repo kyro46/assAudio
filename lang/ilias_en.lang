@@ -16,3 +16,4 @@ msg_currentlynorecording#:#Currently no recording created.
 msg_existing_duration_p1#:#Recording with duration of
 msg_existing_duration_p2#:#seconds exists.
 msg_existing_alternate#:#Recording created.
+no_sample_solution_support#:#For audio recordings, playable sample solutions are not supported.

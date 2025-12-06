@@ -16,3 +16,4 @@ msg_currentlynorecording#:#Aktuell keine Aufzeichnung vorhanden.
 msg_existing_duration_p1#:#Aufzeichnung mit einer Dauer von
 msg_existing_duration_p2#:#Sekunden vorhanden.
 msg_existing_alternate#:#Aufzeichnung erstellt.
+no_sample_solution_support#:#Bei Tonaufzeichnungen stehen keine direkt abspielbaren Musterlösungen zur Verfügung.

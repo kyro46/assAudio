@@ -1,0 +1,23 @@
+<p>{QUESTIONTEXT}</p>
+<br/>
+<!-- BEGIN result_output -->
+<input type="hidden" id="solution_{ID}_audio" name="solution_{ID}_audio" value="{RESULT_PATH}" />
+
+<audio id="samplemedia_{ID}_audio" controls type="audio/webm" src="{RESULT_PATH}">
+    Dein Browser unterstützt das Audio-Element nicht.
+</audio>
+<br>
+
+<a id="downloadSolutionLink_{ID}_audio"
+   download="mediarecorder_{ID}.webm"
+   name="mediarecorder_{ID}.webm"
+   href="{RESULT_PATH}">
+   Download
+</a>
+<!-- END result_output -->
+
+{FALLBACK}
+
+<!-- BEGIN feedback -->
+<div class="{ILC_FB_CSS_CLASS}">{FEEDBACK}</div>
+<!-- END feedback -->
