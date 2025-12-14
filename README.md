@@ -38,7 +38,7 @@ Then follow the usual steps to update ILIAS from the ILIAS-Root-Dir:
 
 ```bash
 composer install --no-dev
-php setup/setup.php update
+php cli/setup.php update
 ```
 
 Activate the plugin in the ILIAS-Admin-GUI.
