@@ -150,7 +150,7 @@ class assAudioGUI extends assQuestionGUI
 			
 		if ($user_solution["value1"])
 		{
-			$path = $this->object->getFileUploadPath($active_id);
+			$path = $this->object->getFileUploadPath(null, $active_id);
 			$content = file_get_contents ($path . $user_solution["value1"]);
 			$template->setVariable("SOLUTION", ilLegacyFormElementsUtil::prepareFormOutput(base64_encode($content)));
 		}
@@ -256,7 +256,7 @@ class assAudioGUI extends assQuestionGUI
         	$value1 = '';
         	if (isset($user_solution["value1"]))
         	{
-        		$path = $this->object->getFileUploadPath($active_id);
+        		$path = $this->object->getFileUploadPath(null, $active_id);
         		$content = file_get_contents ($path . $user_solution["value1"]);
         		$value1 = base64_encode($content);
         	}

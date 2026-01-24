@@ -7,8 +7,12 @@
  * @version	$Id:  $
  * @ingroup ModulesTestQuestionPool
  */
-class assAudio extends assQuestion
+class assAudio extends assQuestion implements ilObjFileHandlingQuestionType
 {
+
+    private \ILIAS\FileDelivery\Services $file_delivery;
+    private \ILIAS\Filesystem\Util\Archive\Archives $archive;
+
 	/**
 	 * @var ilassAudioPlugin	The plugin object
 	 */
@@ -479,12 +483,13 @@ class assAudio extends assQuestion
 		// it is used used by calculateReachedPoints() in this class
 
 		$solution = $this->getSolutionSubmit();
-		
-		$path = $this->getFileUploadPath($active_id);
+		$test_id = $this->testParticipantInfo->lookupTestIdByActiveId($active_id);
+
+		$path = $this->getFileUploadPath($test_id, $active_id);
 		$filename = "recording_" . $active_id . "_" . $pass . "_" . time() . '.webm';
 
-		if (!@file_exists($this->getFileUploadPath($active_id)))
-		ilFileUtils::makeDirParents($this->getFileUploadPath($active_id));
+		if (!@file_exists($this->getFileUploadPath($test_id, $active_id)))
+		    ilFileUtils::makeDirParents($this->getFileUploadPath($test_id, $active_id));
 		file_put_contents($path . $filename, base64_decode($solution["value1"]));
 		
 		$next_id      = $ilDB->nextId('tst_solutions');
@@ -565,13 +570,56 @@ class assAudio extends assQuestion
 	}
 
 	/**
+	 * Implement Interface ilObjFileHandlingQuestionType
 	 * Returns the filesystem path for file uploads
 	 */
-	public function getFileUploadPath($active_id, $question_id = null)
+	public function getFileUploadPath($test_id, $active_id, $question_id = null): string
 	{
 	    $test_id = $this->testParticipantInfo->lookupTestIdByActiveId($active_id);
-		if (is_null($question_id)) $question_id = $this->getId();
-		return CLIENT_WEB_DIR . "/assessment/tst_$test_id/$active_id/$question_id/files/";
+	    if (is_null($test_id)) {
+	        $test_id = $this->testParticipantInfo->lookupTestIdByActiveId($active_id);
+	    }
+
+	    if (is_null($question_id)) {
+	        $question_id = $this->getId();
+	    }
+	    return CLIENT_WEB_DIR . "/assessment/tst_{$test_id}/{$active_id}/{$question_id}/files/";
+	}
+
+	public function hasFileUploads(int $test_id): bool
+	{
+	    $query = '
+		SELECT tst_solutions.solution_id
+		FROM tst_solutions, tst_active, qpl_questions
+		WHERE tst_solutions.active_fi = tst_active.active_id
+		AND tst_solutions.question_fi = qpl_questions.question_id
+		AND tst_solutions.question_fi = %s AND tst_active.test_fi = %s
+		AND tst_solutions.value1 is not null';
+	    $result = $this->db->queryF(
+	        $query,
+	        ['integer', 'integer'],
+	        [$this->getId(), $test_id]
+	        );
+	    if ($result->numRows() > 0) {
+	        return true;
+	    }
+
+	    return false;
+	}
+
+	public function deliverFileUploadZIPFile(int $ref_id, int $test_id, string $test_title): void
+	{
+	    $exporter = new ilAssAudioFileExporter(
+	        $this->db,
+	        $this->lng,
+	        $ref_id,
+	        $test_id
+	        );
+
+	    $exporter->setTestTitle($test_title);
+	    $exporter->setQuestion($this);
+
+	    $exporter->buildAndDownload();
 	}
 }
 ?>
