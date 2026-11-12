@@ -1,56 +1,121 @@
 <p>{QUESTIONTEXT}</p>
 <br/>
 <!-- BEGIN result_output -->
- <script src="Customizing/global/plugins/Modules/TestQuestionPool/Questions/assAudio/js/jquery.min.js"></script>
-<input type="hidden" id="solution_{ID}_audio" name="solution_{ID}_audio"  value='{RESULT_OUTPUT}'/>
-<audio id='samplemedia_{ID}_audio' controls type="audio/webm"></audio><br>
-<a id="downloadSolutionLink_{ID}_audio" download="mediarecorder_{ID}.webm" name="mediarecorder_{ID}.webm" href></a>
+<div class="ass-audio-solution">
+    <input
+        type="hidden"
+        class="ass-audio-solution-data"
+        value='{RESULT_OUTPUT}'
+    />
+    <audio
+        class="ass-audio-solution-player"
+        controls
+        preload="metadata"
+        type="audio/webm">
+    </audio>
+    <br/>
+    <a
+        class="ass-audio-solution-download"
+        download="audio-solution.webm">
+    </a>
+</div>
 <script>
-//Taken from https://jsfiddle.net/sanddune/uubnnr0w/
-function convertDataURIToBinary(dataURI) {
-	  var BASE64_MARKER = ';base64,';
-	  var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
-	  var base64 = dataURI.substring(base64Index);
-	  var raw = window.atob(base64);
-	  var rawLength = raw.length;
-	  var array = new Uint8Array(new ArrayBuffer(rawLength));
+(function () {
 
-	  for(i = 0; i < rawLength; i++) {
-	    array[i] = raw.charCodeAt(i);
-	  }
-	  return array;
-	}
+    function initializeAudioSolutions() {
 
-$(document).ready(function(){
-	var previousSolution = 'data:audio/webm;base64,' + document.getElementById('solution_{ID}_audio').value;
-	var previousSolutionOutput = document.getElementById('samplemedia_{ID}_audio');	
+        document.querySelectorAll(
+            '.ass-audio-solution'
+        ).forEach(function (container) {
 
-	if (document.getElementById('solution_{ID}_audio').value == '\n' || document.getElementById('solution_{ID}_audio').value == '' || document.getElementById('solution_{ID}_audio').value == null) {
-		//Something useful to do here?
-	} else {
-		//var base64ToBlob = atob(previousSolution.value);
-		previousSolutionOutput.controls = true;
-		//previousSolutionOutput.src = "data:audio/webm;base64," . base64ToBlob;
-		
-		var binary = convertDataURIToBinary(previousSolution);
-		var blob = new Blob([binary], {type : 'audio/webm'});		
-		var url = window.URL || window.webkitURL;
-		previousSolutionOutput.src = url ? url.createObjectURL(blob) : blob;
-		previousSolutionOutput.load();
-		
-		var downloadSolutionLink_{ID}_audio = document.getElementById('downloadSolutionLink_{ID}_audio');	
-		var mediaURL = window.URL.createObjectURL(blob);
+            // Bereits initialisierte Player überspringen
+            if (container.dataset.audioInitialized === 'true') {
+                return;
+            }
 
-		downloadSolutionLink_{ID}_audio.href = mediaURL;
-		downloadSolutionLink_{ID}_audio.innerHTML = 'Download';
+            var dataElement = container.querySelector(
+                '.ass-audio-solution-data'
+            );
 
-		var rand =  Math.floor((Math.random() * 10000000));
-		var name  = "media_"+rand+"_{ID}.webm" ;
+            var player = container.querySelector(
+                '.ass-audio-solution-player'
+            );
 
-		downloadSolutionLink_{ID}_audio.setAttribute( "download", name);
-		downloadSolutionLink_{ID}_audio.setAttribute( "name", name);
-	}
-});
+            var downloadLink = container.querySelector(
+                '.ass-audio-solution-download'
+            );
+
+            if (!dataElement || !player || !downloadLink) {
+                return;
+            }
+
+            var base64 = dataElement.value;
+
+            if (!base64 || !base64.trim()) {
+                return;
+            }
+
+            try {
+
+                // Base64 in Binärdaten umwandeln
+                var raw = window.atob(base64.trim());
+
+                var binary = new Uint8Array(raw.length);
+
+                for (var i = 0; i < raw.length; i++) {
+                    binary[i] = raw.charCodeAt(i);
+                }
+
+                // Blob erzeugen
+                var blob = new Blob(
+                    [binary],
+                    { type: 'audio/webm' }
+                );
+
+                var mediaURL = URL.createObjectURL(blob);
+
+                // Player initialisieren
+                player.src = mediaURL;
+                player.load();
+
+                // Download-Link initialisieren
+                downloadLink.href = mediaURL;
+				var rand = Math.floor(Math.random() * 10000000);
+				var name = 'media_' + rand + '_{ID}.webm';
+				
+				downloadLink.textContent = 'Download';
+				downloadLink.download = name;
+
+                container.dataset.audioInitialized = 'true';
+
+            } catch (error) {
+
+                console.error(
+                    'assAudio: Fehler bei der Audioinitialisierung:',
+                    error
+                );
+
+            }
+
+        });
+
+    }
+
+    // Funktion unabhängig vom Ladezeitpunkt aufrufen
+    if (document.readyState === 'loading') {
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            initializeAudioSolutions
+        );
+
+    } else {
+
+        initializeAudioSolutions();
+
+    }
+
+})();
 </script>
 <!-- END result_output -->
 {FALLBACK}
