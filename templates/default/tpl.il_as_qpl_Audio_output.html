@@ -1,7 +1,10 @@
 {QUESTIONTEXT}
  <script src="Customizing/global/plugins/Modules/TestQuestionPool/Questions/assAudio/js/jquery.min.js"></script>
-<div id="visualizerDiv_{ID}" style = "text-align:center;">
-    <canvas id="visualizer_{ID}" height="60px"  margin-bottom: 0.5rem;"></canvas>
+<div id="visualizerDiv_{ID}" style="text-align:center; width:100%; max-width:300px; margin:0 auto;">
+    <canvas id="visualizer_{ID}"
+            height="60"
+            style="width:100%; height:60px; display:block; margin-bottom:0.5rem;">
+    </canvas>
 </div>
 <div id="player" style = "text-align:center;">
 	<audio id='media_{ID}' controls controlsList="nodownload" onloadeddata='showDuration_{ID}()' ></audio>
@@ -195,7 +198,6 @@ function onBtnRecordClicked_{ID} (){
 						}
 					});
 					
-					mediaElement_{ID}.srcObject = localstream_{ID};
 					startRecording_{ID}(stream);
 
 				}).catch(function(err) {
@@ -211,20 +213,18 @@ function startRecording_{ID}(stream) {
 	console.log('Start recording...');
 	mediaRecorder_{ID} = new MediaRecorder(stream);
 
-    visualize_{ID}(localstream_{ID});
-	$('#visualizer_{ID}').show();
-	
-	
+    // AudioContext aktivieren
+    audioCtx_{ID}.resume();
+    // Mikrofon visualisieren
+    visualize_{ID}(stream);
+    $('#visualizerDiv_{ID}').show();
+    
 	pauseResBtn_{ID}.textContent = "{PAUSE}";
 
 	mediaRecorder_{ID}.start(10);
 	
 	//since the stream started, we can start to save it
 	interval_{ID} = setInterval(presave_{ID}, 5000);
-
-	mediaElement_{ID}.srcObject =  localstream_{ID};
-	mediaElement_{ID}.play();
-	$("#media_{ID}").prop('muted', true);
 
 	mediaRecorder_{ID}.ondataavailable = function(e) {
 		//log('Data available...');
@@ -264,8 +264,10 @@ function startRecording_{ID}(stream) {
 
 		downloadLink_{ID}.href = mediaURL;
 		
+		mediaElement_{ID}.controls = true;
 		mediaElement_{ID}.srcObject = null;
 		mediaElement_{ID}.src = mediaURL;
+		mediaElement_{ID}.load();
 		downloadLink_{ID}.innerHTML = 'Download file';
 
 		var rand =  Math.floor((Math.random() * 10000000));
@@ -292,7 +294,8 @@ function onBtnStopClicked_{ID}(){
 	clearInterval(interval_{ID});
 	mediaRecorder_{ID}.stop();
 	mediaElement_{ID}.controls = true;
-	$("#media_{ID}").prop('muted', false);
+	mediaElement_{ID}.controls = true;
+	mediaElement_{ID}.srcObject = null;
 	//$('#visualizer_{ID}').hide();
 
 	recBtn_{ID}.disabled = false;
@@ -445,10 +448,15 @@ function visualize_{ID}(stream_{ID}) {
 	  }
 }
 
-window.onresize = function() {
-	  canvas_{ID}.width = mediaElement_{ID}.offsetWidth;
+function resizeVisualizer_{ID}() {
+    var container = document.getElementById('visualizerDiv_{ID}');
+
+    canvas_{ID}.width = container.clientWidth;
+    canvas_{ID}.height = 60;
 }
 
-window.onresize();
+window.addEventListener('resize', resizeVisualizer_{ID});
+
+resizeVisualizer_{ID}();
 </script>
 <input type="hidden" id="question_{ID}" name="question_{ID}"  value='{SOLUTION}'/>
